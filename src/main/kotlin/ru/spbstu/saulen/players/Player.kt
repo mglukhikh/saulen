@@ -1,28 +1,15 @@
 package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.cards.*
-import ru.spbstu.saulen.game.Resource
-import ru.spbstu.saulen.game.Resource.*
-import ru.spbstu.saulen.game.ResourceAmount
-import java.util.*
+import ru.spbstu.saulen.game.*
 
-abstract class Player(val name: String) {
-    val resources: MutableMap<Resource, Int> = EnumMap<Resource, Int>(Resource::class.java).apply {
-        put(GOLD, 20)
-        put(SAND, 0)
-        put(WOOD, 0)
-        put(STONE, 0)
-        put(METAL, 0)
-        put(VICTORY_POINTS, 2)
-    }
+abstract class Player private constructor(
+        val name: String,
+        val color: Color,
+        val stock: Stock
+) : ResourceStorage by stock {
 
-    operator fun plus(amount: ResourceAmount) {
-        resources[amount.resource] = resources[amount.resource]!! + amount.amount
-    }
-
-    operator fun minus(amount: ResourceAmount) {
-        resources[amount.resource] = resources[amount.resource]!! - amount.amount
-    }
+    constructor(name: String, color: Color): this(name, color, Stock())
 
     val craftsmen = Craftsman.startingCards.toMutableList()
 
