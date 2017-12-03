@@ -14,11 +14,15 @@ class Stock : ResourceStorage {
         put(Resource.MASTER, 2)
     }
 
-    override operator fun plus(amount: ResourceAmount) {
+    override operator fun plusAssign(amount: ResourceAmount) {
         resources[amount.resource] = this[amount.resource] + amount.amount
     }
 
-    override operator fun minus(amount: ResourceAmount) {
+    override operator fun minusAssign(amount: ResourceAmount) {
+        if (this[amount.resource] < amount.amount) {
+            throw IllegalStateException("Not enough resources of type ${amount.resource.name}: " +
+                    "required ${amount.amount}, available ${this[amount.resource]}")
+        }
         resources[amount.resource] = this[amount.resource] - amount.amount
     }
 

@@ -2,6 +2,8 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.cards.*
 import ru.spbstu.saulen.game.*
+import ru.spbstu.saulen.game.Resource.GOLD
+import ru.spbstu.saulen.game.Resource.WORKER
 
 abstract class Player private constructor(
         val name: String,
@@ -28,4 +30,20 @@ abstract class Player private constructor(
     }
 
     val production = mutableListOf<Production>()
+
+    fun isAbleToProduce(production: Production) = this[WORKER] >= production.workers
+
+    operator fun plus(production: Production) {
+        this -= WORKER(production.workers)
+        this.production += production
+    }
+
+    fun produce() {
+        this += GOLD(this[WORKER])
+        for (production in this.production) {
+            this += WORKER(production.workers)
+            this += production()
+        }
+        production.clear()
+    }
 }
