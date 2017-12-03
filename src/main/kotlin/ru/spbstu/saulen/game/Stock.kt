@@ -9,9 +9,10 @@ class Stock : ResourceStorage {
         put(Resource.WOOD, 0)
         put(Resource.STONE, 0)
         put(Resource.METAL, 0)
-        put(Resource.VICTORY_POINTS, 2)
+        put(Resource.WINNING_POINT, 2)
         put(Resource.WORKER, 12)
         put(Resource.MASTER, 2)
+        put(Resource.CRAFTSMEN_LIMIT, 5)
     }
 
     override operator fun plusAssign(amount: ResourceAmount) {

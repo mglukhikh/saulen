@@ -14,7 +14,7 @@ sealed class IncomeAdvantage(
             this(immediate, lastRound, listOf(income))
 }
 
-object Madonna : IncomeAdvantage(immediate = true, income = VICTORY_POINTS(3))
+object Madonna : IncomeAdvantage(immediate = true, income = WINNING_POINT(3))
 
 object Richard : IncomeAdvantage(immediate = false, income = SAND(1))
 

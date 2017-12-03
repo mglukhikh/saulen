@@ -8,24 +8,33 @@ import ru.spbstu.saulen.game.Resource.WORKER
 abstract class Player private constructor(
         val name: String,
         val color: Color,
-        val stock: Stock
+        val stock: Stock,
+        var playerQueue: Int
 ) : ResourceStorage by stock {
 
-    constructor(name: String, color: Color): this(name, color, Stock())
+    constructor(name: String, color: Color, playerQueue: Int): this(name, color, Stock(), playerQueue)
 
     val craftsmen = Craftsman.startingCards.toMutableList()
 
-    operator fun plus(craftsman: Craftsman) {
+    operator fun plusAssign(craftsman: Craftsman) {
         craftsmen += craftsman
     }
 
-    operator fun minus(craftsman: Craftsman) {
+    operator fun minusAssign(craftsman: Craftsman) {
         craftsmen -= craftsman
     }
 
+    var hasEventProtection = false
+
+    var hasTaxFree = false
+
+    var hasGrayWorkers = false
+
+    var marketQueue = 0
+
     val advantages = mutableListOf<Advantage>()
 
-    operator fun plus(advantage: Advantage) {
+    operator fun plusAssign(advantage: Advantage) {
         advantages += advantage
     }
 
@@ -33,7 +42,7 @@ abstract class Player private constructor(
 
     fun isAbleToProduce(production: Production) = this[WORKER] >= production.workers
 
-    operator fun plus(production: Production) {
+    operator fun plusAssign(production: Production) {
         this -= WORKER(production.workers)
         this.production += production
     }
@@ -45,5 +54,23 @@ abstract class Player private constructor(
             this += production()
         }
         production.clear()
+    }
+
+    fun endOfRound(numberOfPlayers: Int) {
+        hasEventProtection = false
+        hasTaxFree = false
+        if (hasGrayWorkers) {
+            hasGrayWorkers = false
+            this -= WORKER(2)
+        }
+        else if (this[WORKER] > 13) {
+            hasGrayWorkers = true
+        }
+        marketQueue = 0
+        playerQueue = when (playerQueue) {
+            Int.MAX_VALUE -> -1
+            numberOfPlayers - 1 -> 0
+            else -> playerQueue + 1
+        }
     }
 }
