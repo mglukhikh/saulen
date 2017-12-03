@@ -1,13 +1,13 @@
 package ru.spbstu.saulen.cards
 
-import ru.spbstu.saulen.game.Material
-import ru.spbstu.saulen.game.Material.*
-import ru.spbstu.saulen.game.MaterialAmount
+import ru.spbstu.saulen.game.Resource
+import ru.spbstu.saulen.game.Resource.*
+import ru.spbstu.saulen.game.ResourceAmount
 
-data class Production(val material: Material, val workers: Int, val amount: Int) {
+data class Production(val material: Resource, val workers: Int, val amount: Int) {
 
-    constructor(materialAmount: MaterialAmount, workers: Int):
-            this(materialAmount.material, workers, materialAmount.amount)
+    constructor(materialAmount: ResourceAmount, workers: Int):
+            this(materialAmount.resource, workers, materialAmount.amount)
 
     operator fun invoke() = material(amount)
 

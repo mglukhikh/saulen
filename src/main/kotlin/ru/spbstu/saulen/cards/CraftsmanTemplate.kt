@@ -1,18 +1,18 @@
 package ru.spbstu.saulen.cards
 
-import ru.spbstu.saulen.game.Material.*
-import ru.spbstu.saulen.game.MaterialAmount
+import ru.spbstu.saulen.game.Resource.*
+import ru.spbstu.saulen.game.ResourceAmount
 import ru.spbstu.saulen.game.Requirement
 
 sealed class CraftsmanTemplate(
-        val income: MaterialAmount,
+        val income: ResourceAmount,
         val requirement: Class<out Requirement>? = null,
-        val expenses: List<MaterialAmount> = listOf(GOLD(0))
+        val expenses: List<ResourceAmount> = listOf(GOLD(0))
 ) : Requirement {
-    constructor(income: MaterialAmount, expense: MaterialAmount):
+    constructor(income: ResourceAmount, expense: ResourceAmount):
             this(income, expenses = listOf(expense))
 
-    constructor(victoryPoints: Int, expense: MaterialAmount = GOLD(0)):
+    constructor(victoryPoints: Int, expense: ResourceAmount = GOLD(0)):
             this(VICTORY_POINTS(victoryPoints), expense)
 
     operator fun invoke(capacity: Int, cost: Int = 0) =
@@ -24,7 +24,7 @@ sealed class Mortelmischer(sandAmount: Int) : CraftsmanTemplate(victoryPoints = 
 object SimpleMortelmischer : Mortelmischer(sandAmount = 3)
 
 sealed class Schreiner(
-        income: MaterialAmount,
+        income: ResourceAmount,
         woodAmount: Int
 ) : CraftsmanTemplate(income, expense = WOOD(woodAmount))
 

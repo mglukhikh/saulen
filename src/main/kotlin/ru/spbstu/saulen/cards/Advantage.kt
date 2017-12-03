@@ -1,16 +1,16 @@
 package ru.spbstu.saulen.cards
 
-import ru.spbstu.saulen.game.Material.*
-import ru.spbstu.saulen.game.MaterialAmount
+import ru.spbstu.saulen.game.Resource.*
+import ru.spbstu.saulen.game.ResourceAmount
 
 sealed class Advantage(val kind: AdvantageKind, val lastRound: Boolean = false)
 
 sealed class IncomeAdvantage(
         immediate: Boolean,
         lastRound: Boolean = false,
-        val income: List<MaterialAmount> = emptyList()
+        val income: List<ResourceAmount> = emptyList()
 ) : Advantage(if (immediate) AdvantageKind.IMMEDIATE else AdvantageKind.CONTINUOUS) {
-    constructor(immediate: Boolean, income: MaterialAmount, lastRound: Boolean = false):
+    constructor(immediate: Boolean, income: ResourceAmount, lastRound: Boolean = false):
             this(immediate, lastRound, listOf(income))
 }
 
