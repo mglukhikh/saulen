@@ -21,6 +21,12 @@ class Stock : ResourceStorage {
 
     override operator fun minusAssign(amount: ResourceAmount) {
         if (this[amount.resource] < amount.amount) {
+            if (amount.resource == Resource.GOLD) {
+                resources[amount.resource] = 0
+                val remainder = amount.amount - this[amount.resource]
+                this -= ResourceAmount(Resource.WINNING_POINT, remainder / 2)
+                return
+            }
             throw IllegalStateException("Not enough resources of type ${amount.resource.name}: " +
                     "required ${amount.amount}, available ${this[amount.resource]}")
         }
