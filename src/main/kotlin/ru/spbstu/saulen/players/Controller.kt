@@ -1,10 +1,7 @@
 package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.board.*
-import ru.spbstu.saulen.cards.Craftsman
-import ru.spbstu.saulen.cards.Francis
-import ru.spbstu.saulen.cards.PriorPhilip
-import ru.spbstu.saulen.cards.StadtMauer
+import ru.spbstu.saulen.cards.*
 import ru.spbstu.saulen.game.Resource
 import java.util.*
 
@@ -131,6 +128,45 @@ class Controller(vararg val players: Player) {
     }
 
     private fun runCardContest() {
+        var queueIndex = 0
+        val activePlayers = players.sortedBy { it.playerQueue }.toMutableSet()
+        while (activePlayers.isNotEmpty() && board.contestCards.isNotEmpty()) {
+            for (player in players) {
+                if (player.marketQueue == queueIndex) {
+                    if (player in activePlayers) {
+                        val answer = player.handleRequest(ContestCardRequest(board.contestCards))
+                        when (answer) {
+                            PassAnswer -> {
+                                activePlayers -= player
+                            }
+                            is ContestCardAnswer -> {
+                                val card = answer.card
+                                when (card) {
+                                    is Production -> {
+                                        if (player.isAbleToProduce(card)) {
+                                            player += card
+                                        } else {
+                                            activePlayers -= player
+                                        }
+                                    }
+                                    is Craftsman -> {
+                                        val cost = card.cost.amount
+                                        if (player[Resource.GOLD] >= cost) {
+                                            player -= Resource.GOLD(cost)
+                                            player += card
+                                        } else {
+                                            activePlayers -= player
+                                        }
+                                    }
+                                }
+                                board.contestCards -= card
+                            }
+                        }
+                    }
+                }
+            }
+            queueIndex = (queueIndex + 1) % players.size
+        }
 
     }
 
