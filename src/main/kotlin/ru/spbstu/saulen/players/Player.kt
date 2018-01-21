@@ -59,7 +59,6 @@ abstract class Player private constructor(
     }
 
     fun produce() {
-        this += GOLD(this[WORKER])
         for (production in this.production) {
             this += WORKER(production.workers)
             this += production()
@@ -77,7 +76,7 @@ abstract class Player private constructor(
         else if (this[WORKER] > 13) {
             hasGrayWorkers = true
         }
-        marketQueue = 0
+        marketQueue = -1
         playerQueue = when (playerQueue) {
             Int.MAX_VALUE -> -1
             numberOfPlayers - 1 -> 0

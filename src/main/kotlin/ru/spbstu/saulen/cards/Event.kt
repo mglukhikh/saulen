@@ -12,7 +12,11 @@ sealed class Event(val negative: Boolean) {
                 Koenig,
                 William,
                 RichardEvent,
-                Konflikt
+                Konflikt,
+                StadtMauer,
+                Philip,
+                KalteWinter,
+                Freiwilligen
         )
     }
 }
@@ -31,3 +35,27 @@ object RichardEvent : ResourceEvent(Resource.METAL(1))
 
 object Konflikt : ResourceEvent(Resource.WINNING_POINT(-2))
 
+object StadtMauer : ResourceEvent(Resource.MASTER(-1))
+
+object Philip : Event(negative = false) {
+    override fun invokeOn(player: Player) {
+        val workers = player[Resource.WORKER]
+        player += Resource.GOLD(minOf(workers, 5))
+    }
+}
+
+object KalteWinter : Event(negative = true) {
+    override fun invokeOn(player: Player) {
+        for (production in player.production) {
+            player -= production.material(1)
+        }
+    }
+}
+
+object Freiwilligen : Event(negative = false) {
+    override fun invokeOn(player: Player) {
+        for (production in player.production) {
+            player += production.material(1)
+        }
+    }
+}

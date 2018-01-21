@@ -21,8 +21,10 @@ class Stock : ResourceStorage {
                 this -= ResourceAmount(Resource.WINNING_POINT, remainder / 2)
                 return
             }
-            throw IllegalStateException("Not enough resources of type ${amount.resource.name}: " +
-                    "required ${amount.amount}, available ${this[amount.resource]}")
+            else if (amount.amount != 1) {
+                throw IllegalStateException("Not enough resources of type ${amount.resource.name}: " +
+                        "required ${amount.amount}, available ${this[amount.resource]}")
+            }
         }
         resources[amount.resource] = this[amount.resource] - amount.amount
     }

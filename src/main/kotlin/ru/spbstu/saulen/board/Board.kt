@@ -14,8 +14,8 @@ class Board {
 
     private val lastRoundAdvantages = Advantage.lastRound.toMutableList()
 
-    val masterPositions = mutableMapOf<MasterPosition, Player?>().apply {
-        for (position in MasterPosition.positions) {
+    val positions = mutableMapOf<BoardPosition, Player?>().apply {
+        for (position in BoardPosition.positions) {
             this[position] = null
         }
     }
@@ -24,9 +24,15 @@ class Board {
 
     val market = Stock()
 
-    var currentEvent: Event? = null
+    private fun taxLevel(r: Random): Int = when (r.nextInt(6)) {
+        0 -> 2
+        1,2 -> 3
+        3,4 -> 4
+        else -> 5
+    }
 
-    fun prepareForRound(craftsmen: MutableList<Craftsman>, r: Random, lastRound: Boolean) {
+    fun prepareForRound(craftsmenList: List<Craftsman>, r: Random, lastRound: Boolean) {
+        val craftsmen = craftsmenList.toMutableList()
         contestCards.clear()
         contestCards.addAll(Production.cards)
         val first = r.nextInt(craftsmen.size)
@@ -36,16 +42,26 @@ class Board {
         contestCards += craftsmen[second]
         craftsmen.removeAt(second)
         val deckOfAdvantages = if (lastRound) lastRoundAdvantages else regularAdvantages
-        for (position in MasterPosition.positions) {
-            masterPositions[position] = null
-            if (position is CraftsmanPosition) {
-                position.craftsman = craftsmen[0]
-                craftsmen.removeAt(0)
-            }
-            if (position is AdvantagePosition) {
-                val advantageIndex = r.nextInt(deckOfAdvantages.size)
-                position.advantage = deckOfAdvantages[advantageIndex]
-                deckOfAdvantages.removeAt(advantageIndex)
+        for (position in BoardPosition.positions) {
+            positions[position] = null
+            when (position) {
+                is CraftsmanPosition -> {
+                    position.craftsman = craftsmen[0]
+                    craftsmen.removeAt(0)
+                }
+                is AdvantagePosition -> {
+                    val advantageIndex = r.nextInt(deckOfAdvantages.size)
+                    position.advantage = deckOfAdvantages[advantageIndex]
+                    deckOfAdvantages.removeAt(advantageIndex)
+                }
+                is EventInvocationPosition -> {
+                    val eventIndex = r.nextInt(deckOfEvents.size)
+                    position.event = deckOfEvents[eventIndex]
+                    deckOfEvents.removeAt(eventIndex)
+                }
+                is TaxPosition -> {
+                    position.amount = taxLevel(r)
+                }
             }
         }
         market.apply {
@@ -56,8 +72,5 @@ class Board {
         if (craftsmen.isNotEmpty()) {
             throw AssertionError("All craftsmen should be spent during round preparation")
         }
-        val eventIndex = r.nextInt(deckOfEvents.size)
-        currentEvent = deckOfEvents[eventIndex]
-        deckOfEvents.removeAt(eventIndex)
     }
 }
