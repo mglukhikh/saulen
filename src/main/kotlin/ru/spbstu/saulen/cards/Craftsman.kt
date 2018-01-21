@@ -1,6 +1,13 @@
 package ru.spbstu.saulen.cards
 
-data class Craftsman(val template: CraftsmanTemplate, val capacity: Int, val cost: Int = 0) {
+import ru.spbstu.saulen.game.Resource
+import ru.spbstu.saulen.game.ResourceAmount
+
+data class Craftsman(
+        val template: CraftsmanTemplate,
+        val capacity: Int,
+        override val cost: ResourceAmount = Resource.GOLD(0)
+) : ContestCard {
 
     fun up() = Craftsman(template, capacity + 1, cost)
 

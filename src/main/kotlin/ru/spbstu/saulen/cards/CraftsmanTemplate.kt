@@ -3,6 +3,7 @@ package ru.spbstu.saulen.cards
 import ru.spbstu.saulen.game.Resource.*
 import ru.spbstu.saulen.game.ResourceAmount
 import ru.spbstu.saulen.game.Requirement
+import ru.spbstu.saulen.game.Resource
 
 sealed class CraftsmanTemplate(
         val income: ResourceAmount,
@@ -16,7 +17,7 @@ sealed class CraftsmanTemplate(
             this(WINNING_POINT(victoryPoints), expense)
 
     operator fun invoke(capacity: Int, cost: Int = 0) =
-            Craftsman(this, capacity, cost)
+            Craftsman(this, capacity, Resource.GOLD(cost))
 }
 
 sealed class Mortelmischer(sandAmount: Int) : CraftsmanTemplate(victoryPoints = 1, expense = SAND(sandAmount))

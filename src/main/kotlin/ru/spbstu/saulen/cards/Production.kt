@@ -4,7 +4,11 @@ import ru.spbstu.saulen.game.Resource
 import ru.spbstu.saulen.game.Resource.*
 import ru.spbstu.saulen.game.ResourceAmount
 
-data class Production(val material: Resource, val workers: Int, val amount: Int) {
+data class Production(
+        val material: Resource,
+        val workers: Int,
+        val amount: Int
+) : ContestCard {
 
     constructor(materialAmount: ResourceAmount, workers: Int):
             this(materialAmount.resource, workers, materialAmount.amount)
@@ -12,6 +16,9 @@ data class Production(val material: Resource, val workers: Int, val amount: Int)
     operator fun invoke() = material(amount)
 
     fun up() = Production(material, workers, amount + 1)
+
+    override val cost: ResourceAmount
+        get() = Resource.WORKER(workers)
 
     companion object {
         val cards = listOf(
