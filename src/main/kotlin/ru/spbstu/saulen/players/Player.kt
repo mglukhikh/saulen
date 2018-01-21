@@ -45,6 +45,10 @@ abstract class Player private constructor(
         advantages += advantage
     }
 
+    operator fun minusAssign(advantage: Advantage) {
+        advantages -= advantage
+    }
+
     val production = mutableListOf<Production>()
 
     fun isAbleToProduce(production: Production) = this[WORKER] >= production.workers
