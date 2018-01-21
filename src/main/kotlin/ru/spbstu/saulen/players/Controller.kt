@@ -71,7 +71,13 @@ class Controller(vararg val players: Player) {
                     }
                     for (player in players) {
                         if (player.hasEventProtection && !event.negative) {
-                            // Request for one free resource from market
+                            do {
+                                val answer = player.handleRequest(FreeResourceRequest)
+                                if (answer is BuyAnswer) {
+                                    player += answer.amount.resource(1)
+                                    board.market -= answer.amount.resource(1)
+                                }
+                            } while (answer !is BuyAnswer)
                         }
                     }
                 }
@@ -83,8 +89,20 @@ class Controller(vararg val players: Player) {
                             if (player.marketQueue == queueIndex) {
                                 if (player in activePlayers) {
                                     // Request for trade
-                                    if (true /* Pass answered */) {
-                                        activePlayers -= player
+                                    val answer = player.handleRequest(TradeRequest(board.market))
+                                    when (answer) {
+                                        is BuyAnswer -> {
+                                            player += answer.amount
+                                            player -= Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
+                                            board.market -= answer.amount
+                                        }
+                                        is SellAnswer -> {
+                                            player += Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
+                                            player -= answer.amount
+                                        }
+                                        PassAnswer -> {
+                                            activePlayers -= player
+                                        }
                                     }
                                 }
                                 break

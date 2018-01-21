@@ -19,6 +19,8 @@ abstract class Player private constructor(
         this += CRAFTSMEN_LIMIT(5)
     }
 
+    abstract fun handleRequest(request: Request): Answer
+
     constructor(name: String, color: Color, playerQueue: Int): this(name, color, Stock(), playerQueue)
 
     val craftsmen = Craftsman.startingCards.toMutableList()
