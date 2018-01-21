@@ -2,8 +2,7 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.cards.*
 import ru.spbstu.saulen.game.*
-import ru.spbstu.saulen.game.Resource.GOLD
-import ru.spbstu.saulen.game.Resource.WORKER
+import ru.spbstu.saulen.game.Resource.*
 
 abstract class Player private constructor(
         val name: String,
@@ -11,6 +10,14 @@ abstract class Player private constructor(
         val stock: Stock,
         var playerQueue: Int
 ) : ResourceStorage by stock {
+
+    init {
+        this += GOLD(20)
+        this += WINNING_POINT(2)
+        this += WORKER(12)
+        this += MASTER(3)
+        this += CRAFTSMEN_LIMIT(5)
+    }
 
     constructor(name: String, color: Color, playerQueue: Int): this(name, color, Stock(), playerQueue)
 
