@@ -2,6 +2,8 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.board.*
 import ru.spbstu.saulen.cards.Craftsman
+import ru.spbstu.saulen.cards.Francis
+import ru.spbstu.saulen.cards.PriorPhilip
 import ru.spbstu.saulen.cards.StadtMauer
 import ru.spbstu.saulen.game.Resource
 import java.util.*
@@ -37,6 +39,21 @@ class Controller(vararg val players: Player) {
         var returnMastersBack = true
         var startPlayerIndex = -1
         for ((position, ownerPlayer) in board.positions) {
+            // Before invocation
+            when (position) {
+                is TaxPosition -> {
+                    players.firstOrNull { Francis in it.advantages && !it.hasTaxFree }?.let {
+                        it += Resource.GOLD(position.amount - 2)
+                    }
+                }
+                is WinningPointPosition -> {
+                    ownerPlayer?.takeIf { PriorPhilip in it.advantages }?.let {
+                        it += Resource.WINNING_POINT(1)
+                    }
+                }
+            }
+
+            // Invocation
             if (position.masterPosition) {
                 ownerPlayer?.let { position.invokeOn(it) }
             } else {

@@ -15,7 +15,11 @@ sealed class Advantage(val kind: AdvantageKind) {
                 Wollmesse,
                 Tom,
                 Aliena,
-                Toledo
+                Toledo,
+                Jack,
+                Otto,
+                Francis,
+                PriorPhilip
         )
 
         val lastRound = listOf(
@@ -55,6 +59,8 @@ object Aliena : IncomeAdvantage(immediate = false, income = WOOD(1))
 
 object Toledo : IncomeAdvantage(immediate = true, income = METAL(2))
 
+object Jack : IncomeAdvantage(immediate = true, income = CRAFTSMEN_LIMIT(1))
+
 object Vollendung : IncomeAdvantage(
         immediate = true,
         income = listOf(WOOD(1), STONE(1))
@@ -64,3 +70,17 @@ object Feierlichkeiten : IncomeAdvantage(
         immediate = true,
         income = METAL(1)
 )
+
+object Otto : IncomeAdvantage(immediate = true, income = WORKER(1))
+
+object Francis : Advantage(AdvantageKind.CONTINUOUS) {
+    override fun invokeOn(player: Player) {
+
+    }
+}
+
+object PriorPhilip : Advantage(AdvantageKind.CONTINUOUS) {
+    override fun invokeOn(player: Player) {
+
+    }
+}
