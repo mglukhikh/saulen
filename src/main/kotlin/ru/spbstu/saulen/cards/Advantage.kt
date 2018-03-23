@@ -19,7 +19,11 @@ sealed class Advantage(val kind: AdvantageKind) {
                 Jack,
                 Otto,
                 Francis,
-                PriorPhilip
+                PriorPhilip,
+                Ellen,
+                Steuerfreiheit,
+                Thomas,
+                Remigius
         )
 
         val lastRound = listOf(
@@ -75,12 +79,41 @@ object Otto : IncomeAdvantage(immediate = true, income = WORKER(1))
 
 object Francis : Advantage(AdvantageKind.CONTINUOUS) {
     override fun invokeOn(player: Player) {
-
+        // Implemented manually (fixed tax level of 2 gold)
     }
 }
 
 object PriorPhilip : Advantage(AdvantageKind.CONTINUOUS) {
     override fun invokeOn(player: Player) {
-
+        // Implemented manually (+1 WP at winning point position)
     }
+}
+
+object Ellen : Advantage(AdvantageKind.CONTINUOUS) {
+    // Du darfst dir zu Beginn jeder Runde die kommende Ereigniskarte ansehen
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
+    }
+}
+
+object Steuerfreiheit : Advantage(AdvantageKind.ONETIME) {
+    // Du erhaelst in einer beliebigen Runde Steuerfreiheit (nach dem Wuerfelwurf)
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
+    }
+}
+
+object Thomas : Advantage(AdvantageKind.ONETIME) {
+    // Du erhaelst in einer beliebigen Runde Schutz vor dem Ereignis (nach dem Aufdecken)
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
+    }
+}
+
+object Remigius : Advantage(AdvantageKind.ONETIME) {
+    // Du darfst in einer beliebigen Runde einen eigenen gezogenen Baumeister kostenlos einsetzen
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
+    }
+
 }

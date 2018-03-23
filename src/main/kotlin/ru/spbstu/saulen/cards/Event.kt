@@ -16,7 +16,9 @@ sealed class Event(val negative: Boolean) {
                 StadtMauer,
                 Philip,
                 KalteWinter,
-                Freiwilligen
+                Freiwilligen,
+                Teile,
+                Erzbischof
         )
     }
 }
@@ -57,5 +59,20 @@ object Freiwilligen : Event(negative = false) {
         for (production in player.production) {
             player += production.material(1)
         }
+    }
+}
+
+object Teile : Event(negative = true) {
+    // Alle Spieler verlieren einen Handwerker ihrer Wahl
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
+    }
+}
+
+object Erzbischof : Event(negative = false) {
+    // Fuer jeden Spieler erhoeht sich die Kapazitaet eines eigenes Handwerkers um 1
+    // (gilt nicht fuer Orgelbauer und Glockengiesser)
+    override fun invokeOn(player: Player) {
+        // TODO (probably not here)
     }
 }
