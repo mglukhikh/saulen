@@ -88,6 +88,7 @@ class Controller(vararg val players: Player) {
                                     // Request for trade
                                     val answer = player.handleRequest(TradeRequest(board.market))
                                     when (answer) {
+                                        // TODO: handle incorrect answers
                                         is BuyAnswer -> {
                                             player += answer.amount
                                             player -= Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
@@ -136,6 +137,7 @@ class Controller(vararg val players: Player) {
                     if (player in activePlayers) {
                         val answer = player.handleRequest(ContestCardRequest(board.contestCards))
                         when (answer) {
+                            // TODO: handle incorrect answers
                             PassAnswer -> {
                                 activePlayers -= player
                             }
@@ -167,14 +169,72 @@ class Controller(vararg val players: Player) {
             }
             queueIndex = (queueIndex + 1) % players.size
         }
-
     }
 
     private fun runMasterSetup() {
+        val masters = mutableListOf<Player>()
+        for (player in players) {
+            for (i in 0..player[Resource.MASTER]) {
+                masters += player
+            }
+        }
+        val startingPlayer = players.sortedBy { it.playerQueue }.first()
+        masters.shuffle(random)
+        val masterCircle = TreeMap<Int, Player>()
+        var currentCost = START_MASTER_COST
 
+        fun setMaster(currentPlayer: Player, cost: Int) {
+            val request = SetMasterRequest(cost)
+            var answer = if (currentPlayer[Resource.GOLD] < cost) {
+                // TODO: Use Remigius?
+                PassAnswer
+            } else {
+                currentPlayer.handleRequest(request)
+            }
+            do {
+                var incorrect = false
+                when (answer) {
+                    PassAnswer -> {
+                        if (cost > 0) {
+                            masterCircle[cost] = currentPlayer
+                        } else {
+                            incorrect = true
+                        }
+                    }
+                    is SetMasterAnswer -> {
+                        if (board.positions[answer.position] == null) {
+                            currentPlayer -= Resource.GOLD(cost)
+                            board.positions[answer.position] = currentPlayer
+                        } else {
+                            incorrect = true
+                        }
+
+                    }
+                    else -> {
+                        incorrect = true
+                    }
+                }
+                if (incorrect) {
+                    answer = currentPlayer.handleRequest(request)
+                }
+            } while (incorrect)
+        }
+
+        while (masters.isNotEmpty()) {
+            val currentPlayer = masters.removeAt(masters.lastIndex)
+            // TODO: allow starting player to put current master back once
+
+            val cost = currentCost--
+            setMaster(currentPlayer, cost)
+        }
+        for (currentPlayer in masterCircle.descendingMap().values) {
+            setMaster(currentPlayer, 0)
+        }
     }
 
     companion object {
-        val LAST_ROUND = 6
+        const val LAST_ROUND = 6
+
+        const val START_MASTER_COST = 7
     }
 }

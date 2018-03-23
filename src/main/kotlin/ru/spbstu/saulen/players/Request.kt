@@ -10,3 +10,5 @@ object FreeResourceRequest : Request()
 class TradeRequest(val market: Stock) : Request()
 
 class ContestCardRequest(val cards: List<ContestCard>) : Request()
+
+class SetMasterRequest(val cost: Int) : Request()
