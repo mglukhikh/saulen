@@ -7,11 +7,11 @@ import java.util.*
 
 class Controller(vararg val players: Player) {
 
-    val board = Board()
+    private val board = Board()
 
-    var currentRound = 0
+    private var currentRound = 0
 
-    val random = Random()
+    private val random = Random()
 
     fun runGame(): Map<Player, Int> {
         while (currentRound < LAST_ROUND) {
@@ -184,7 +184,7 @@ class Controller(vararg val players: Player) {
         var currentCost = START_MASTER_COST
 
         fun setMaster(currentPlayer: Player, cost: Int) {
-            val request = SetMasterRequest(cost)
+            val request = SetMasterRequest(cost, board.positions.filterValues { it == null }.keys.toList())
             var answer = if (currentPlayer[Resource.GOLD] < cost) {
                 // TODO: Use Remigius?
                 PassAnswer

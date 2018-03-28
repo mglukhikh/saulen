@@ -13,6 +13,10 @@ data class Craftsman(
 
     fun down() = Craftsman(template, capacity - 1, cost)
 
+    override fun toString(): String {
+        return "(x$capacity) ($cost) $template"
+    }
+
     companion object {
 
         val startingCards = listOf(

@@ -16,4 +16,8 @@ enum class Resource(
     CRAFTSMEN_LIMIT(0, purchaseAllowed = false, saleAllowed = false);
 
     operator fun invoke(amount: Int) = ResourceAmount(this, amount)
+
+    override fun toString(): String {
+        return name.toLowerCase().replace('_', ' ')
+    }
 }

@@ -6,7 +6,10 @@ import ru.spbstu.saulen.cards.Event
 import ru.spbstu.saulen.game.Resource
 import ru.spbstu.saulen.players.Player
 
-sealed class BoardPosition(val masterPosition: Boolean = true) {
+sealed class BoardPosition(
+        private val description: String,
+        val masterPosition: Boolean = true
+) {
     abstract fun invokeOn(player: Player)
 
     companion object {
@@ -35,15 +38,19 @@ sealed class BoardPosition(val masterPosition: Boolean = true) {
                 StartPlayerPosition
         )
     }
+
+    override fun toString() = description
 }
 
-object EventProtectionPosition : BoardPosition() {
+object EventProtectionPosition : BoardPosition("Protection from events") {
     override fun invokeOn(player: Player) {
         player.hasEventProtection = true
     }
 }
 
-class EventInvocationPosition(var event: Event? = null) : BoardPosition(false) {
+class EventInvocationPosition(
+        var event: Event? = null
+) : BoardPosition("", false) {
     override fun invokeOn(player: Player) {
         val event = event ?: return
         if (!event.negative || !player.hasEventProtection) {
@@ -52,34 +59,42 @@ class EventInvocationPosition(var event: Event? = null) : BoardPosition(false) {
     }
 }
 
-object WollManufakturPosition : BoardPosition(false) {
+object WollManufakturPosition : BoardPosition(
+        "", false
+) {
     override fun invokeOn(player: Player) {
         val workers = player[Resource.WORKER]
         player += Resource.GOLD(workers)
     }
 }
 
-class AdvantagePosition(var advantage: Advantage? = null) : BoardPosition() {
+class AdvantagePosition(var advantage: Advantage? = null) : BoardPosition("") {
     override fun invokeOn(player: Player) {
         val advantage = this.advantage ?: return
         player += advantage
         advantage.invokeOn(player)
     }
+
+    override fun toString(): String {
+        return advantage?.toString() ?: "? No advantage ?"
+    }
 }
 
-class WinningPointPosition(val amount: Int) : BoardPosition() {
+class WinningPointPosition(val amount: Int) : BoardPosition("Winning points $amount") {
     override fun invokeOn(player: Player) {
         player += Resource.WINNING_POINT(amount)
     }
 }
 
-object ProductionPosition : BoardPosition(false) {
+object ProductionPosition : BoardPosition("", false) {
     override fun invokeOn(player: Player) {
         player.produce()
     }
 }
 
-class TaxFreePosition(val withMetal: Boolean = false) : BoardPosition() {
+class TaxFreePosition(val withMetal: Boolean = false) : BoardPosition(
+        if (withMetal) "Tax free with metal" else "Tax free"
+) {
     override fun invokeOn(player: Player) {
         player.hasTaxFree = true
         if (withMetal) {
@@ -88,7 +103,7 @@ class TaxFreePosition(val withMetal: Boolean = false) : BoardPosition() {
     }
 }
 
-class TaxPosition(var amount: Int = 0) : BoardPosition(false) {
+class TaxPosition(var amount: Int = 0) : BoardPosition("", false) {
     override fun invokeOn(player: Player) {
         if (!player.hasTaxFree) {
             player -= Resource.GOLD(amount)
@@ -96,32 +111,34 @@ class TaxPosition(var amount: Int = 0) : BoardPosition(false) {
     }
 }
 
-class CraftsmanPosition(var craftsman: Craftsman? = null) : BoardPosition() {
+class CraftsmanPosition(var craftsman: Craftsman? = null) : BoardPosition(
+        "Craftsman $craftsman"
+) {
     override fun invokeOn(player: Player) {
         val craftsman = craftsman ?: return
         player += craftsman
     }
 }
 
-object GrayWorkersPosition : BoardPosition() {
+object GrayWorkersPosition : BoardPosition("Two gray workers") {
     override fun invokeOn(player: Player) {
         player += Resource.WORKER(2)
     }
 }
 
-class MarketPosition(val queue: Int) : BoardPosition() {
+class MarketPosition(val queue: Int) : BoardPosition("Market queue $queue") {
     override fun invokeOn(player: Player) {
         player.marketQueue = queue
     }
 }
 
-object TradePosition : BoardPosition(false) {
+object TradePosition : BoardPosition("", false) {
     override fun invokeOn(player: Player) {
         // Have to handle in controller, too complex logic
     }
 }
 
-object StartPlayerPosition : BoardPosition() {
+object StartPlayerPosition : BoardPosition("Starting player") {
     override fun invokeOn(player: Player) {
         player.playerQueue = Int.MAX_VALUE
     }

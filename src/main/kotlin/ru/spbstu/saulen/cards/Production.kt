@@ -20,6 +20,10 @@ data class Production(
     override val cost: ResourceAmount
         get() = Resource.WORKER(workers)
 
+    override fun toString(): String {
+        return "$workers workers: $material $amount"
+    }
+
     companion object {
         val cards = listOf(
                 Production(SAND(2), workers = 2),

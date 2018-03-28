@@ -14,7 +14,7 @@ class Board {
 
     private val lastRoundAdvantages = Advantage.lastRound.toMutableList()
 
-    val positions = mutableMapOf<BoardPosition, Player?>().apply {
+    val positions = linkedMapOf<BoardPosition, Player?>().apply {
         for (position in BoardPosition.positions) {
             this[position] = null
         }

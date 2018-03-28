@@ -18,6 +18,11 @@ sealed class CraftsmanTemplate(
 
     operator fun invoke(capacity: Int, cost: Int = 0) =
             Craftsman(this, capacity, Resource.GOLD(cost))
+
+    override fun toString(): String {
+        val requirementDescription = requirement?.simpleName ?: ""
+        return "${this::class.simpleName}: from ${expenses.joinToString()} to $income $requirementDescription"
+    }
 }
 
 sealed class Mortelmischer(sandAmount: Int) : CraftsmanTemplate(victoryPoints = 1, expense = SAND(sandAmount))
