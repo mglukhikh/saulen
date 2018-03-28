@@ -64,7 +64,7 @@ class HumanPlayer(
                         if (index == null || index !in 1..possibleCards.size) {
                             null
                         } else {
-                            ContestCardAnswer(possibleCards[index])
+                            ContestCardAnswer(possibleCards[index - 1])
                         }
                     }
                     'M' -> {
@@ -73,7 +73,7 @@ class HumanPlayer(
                         if (index == null || index !in 1..positions.size) {
                             null
                         } else {
-                            SetMasterAnswer(positions[index])
+                            SetMasterAnswer(positions[index - 1])
                         }
 
                     }

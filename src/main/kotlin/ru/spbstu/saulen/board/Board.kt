@@ -34,7 +34,8 @@ class Board {
     fun prepareForRound(craftsmenList: List<Craftsman>, r: Random, lastRound: Boolean) {
         val craftsmen = craftsmenList.toMutableList()
         contestCards.clear()
-        contestCards.addAll(Production.cards)
+        val productionCards = Production.cards.shuffled(r)
+        contestCards.addAll(productionCards.subList(0, productionCards.size - 2))
         val first = r.nextInt(craftsmen.size)
         contestCards += craftsmen[first]
         craftsmen.removeAt(first)
