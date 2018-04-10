@@ -12,7 +12,7 @@ abstract class Player private constructor(
 ) : ResourceStorage by stock {
 
     init {
-        this += GOLD(20)
+        this += GOLD(20 + playerQueue)
         this += WINNING_POINT(2)
         this += WORKER(12)
         this += MASTER(3)
