@@ -25,7 +25,7 @@ class Controller(vararg val players: Player) {
         return result
     }
 
-    internal fun runRound() {
+    private fun runRound() {
         prepareForRound()
         runCardContest()
         runMasterSetup()

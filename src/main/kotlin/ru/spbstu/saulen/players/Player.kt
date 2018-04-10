@@ -7,16 +7,18 @@ import ru.spbstu.saulen.game.Resource.*
 abstract class Player private constructor(
         val name: String,
         val color: Color,
-        val stock: Stock,
+        private val stock: Stock,
         var playerQueue: Int
 ) : ResourceStorage by stock {
 
     init {
-        this += GOLD(20 + playerQueue)
-        this += WINNING_POINT(2)
-        this += WORKER(12)
-        this += MASTER(3)
-        this += CRAFTSMEN_LIMIT(5)
+        listOf(
+                GOLD(20 + playerQueue),
+                WINNING_POINT(2),
+                WORKER(12),
+                MASTER(3),
+                CRAFTSMEN_LIMIT(5)
+        ).forEach { this.plusAssign(it) }
     }
 
     abstract fun handleRequest(request: Request): Answer
@@ -52,8 +54,6 @@ abstract class Player private constructor(
     }
 
     val production = mutableListOf<Production>()
-
-    fun isAbleToProduce(production: Production) = has(production.cost)
 
     fun has(amount: ResourceAmount) = this[amount.resource] >= amount.amount
 

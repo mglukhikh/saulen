@@ -3,7 +3,7 @@ package ru.spbstu.saulen.game
 import java.util.*
 
 class Stock : ResourceStorage {
-    val resources: MutableMap<Resource, Int> = EnumMap<Resource, Int>(Resource::class.java).apply {
+    private val resources: MutableMap<Resource, Int> = EnumMap<Resource, Int>(Resource::class.java).apply {
         for (resource in Resource.values()) {
             put(resource, 0)
         }
