@@ -9,7 +9,7 @@ class Controller(vararg val players: Player) {
 
     private val board = Board()
 
-    private var currentRound = 0
+    internal var currentRound = 0
 
     private val random = Random()
 
@@ -25,12 +25,8 @@ class Controller(vararg val players: Player) {
         return result
     }
 
-    private fun runRound() {
-        board.prepareForRound(
-                Craftsman.cardsPerRound[currentRound - 1],
-                random,
-                currentRound == LAST_ROUND
-        )
+    internal fun runRound() {
+        prepareForRound()
         runCardContest()
         runMasterSetup()
         var returnMastersBack = true
@@ -128,7 +124,15 @@ class Controller(vararg val players: Player) {
         }
     }
 
-    private fun runCardContest() {
+    internal fun prepareForRound() {
+        board.prepareForRound(
+                Craftsman.cardsPerRound[currentRound - 1],
+                random,
+                currentRound == LAST_ROUND
+        )
+    }
+
+    internal fun runCardContest() {
         var queueIndex = 0
         val activePlayers = players.sortedBy { it.playerQueue }.toMutableSet()
         while (activePlayers.isNotEmpty() && board.contestCards.isNotEmpty()) {
