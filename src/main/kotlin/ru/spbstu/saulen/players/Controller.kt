@@ -136,39 +136,34 @@ class Controller(vararg val players: Player) {
         var queueIndex = 0
         val activePlayers = players.sortedBy { it.playerQueue }.toMutableSet()
         while (activePlayers.isNotEmpty() && board.contestCards.isNotEmpty()) {
-            for (player in players) {
-                if (player.marketQueue == queueIndex) {
-                    if (player in activePlayers) {
-                        val cardsToChoose = board.contestCards.filter { player.has(it.cost) }
-                        var answer: Answer
-                        do {
-                            answer = if (cardsToChoose.isEmpty()) {
-                                PassAnswer
-                            } else {
-                                player.handleRequest(
-                                        ContestCardRequest(cardsToChoose)
-                                )
-                            }
-                        } while (answer != PassAnswer && (answer !is ContestCardAnswer || answer.card !in cardsToChoose))
-                        when (answer) {
-                            PassAnswer -> {
-                                activePlayers -= player
-                            }
-                            is ContestCardAnswer -> {
-                                val card = answer.card
-                                when (card) {
-                                    is Production -> {
-                                        player += card
-                                    }
-                                    is Craftsman -> {
-                                        player -= card.cost
-                                        player += card
-                                    }
-                                }
-                                board.contestCards -= card
-                            }
+            val player = activePlayers.find { it.playerQueue == queueIndex } ?: continue
+            val cardsToChoose = board.contestCards.filter { player.has(it.cost) }
+            var answer: Answer
+            do {
+                answer = if (cardsToChoose.isEmpty()) {
+                    PassAnswer
+                } else {
+                    player.handleRequest(
+                            ContestCardRequest(cardsToChoose)
+                    )
+                }
+            } while (answer != PassAnswer && (answer !is ContestCardAnswer || answer.card !in cardsToChoose))
+            when (answer) {
+                PassAnswer -> {
+                    activePlayers -= player
+                }
+                is ContestCardAnswer -> {
+                    val card = answer.card
+                    when (card) {
+                        is Production -> {
+                            player += card
+                        }
+                        is Craftsman -> {
+                            player -= card.cost
+                            player += card
                         }
                     }
+                    board.contestCards -= card
                 }
             }
             queueIndex = (queueIndex + 1) % players.size
