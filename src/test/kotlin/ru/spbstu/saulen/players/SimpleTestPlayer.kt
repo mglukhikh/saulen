@@ -22,9 +22,12 @@ class SimpleTestPlayer(
                                     ?.let { ContestCardAnswer(it) }
                         ?: PassAnswer
             }
+            is SetMasterRequest -> {
+                val positions = request.positions
+                positions.firstOrNull()?.let { SetMasterAnswer(it) } ?: PassAnswer
+            }
             FreeResourceRequest -> TODO()
             is TradeRequest -> TODO()
-            is SetMasterRequest -> TODO()
         }
     }
 }

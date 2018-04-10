@@ -36,4 +36,23 @@ class ControllerTest {
         assertEquals(startGold, p1[Resource.GOLD] + p1.craftsmen.sumBy { it.cost.amount })
         assertEquals(startGold + 1, p2[Resource.GOLD] + p2.craftsmen.sumBy { it.cost.amount })
     }
+
+    @Test
+    fun testMasterSetup() {
+        val p1 = SimpleTestPlayer(Color.BLUE, 0)
+        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val startGold = p1[Resource.GOLD]
+        assertEquals(startGold + 1, p2[Resource.GOLD])
+        val startMasters = p1[Resource.MASTER]
+        assertEquals(startMasters, p2[Resource.MASTER])
+        val controller = Controller(p1, p2)
+        controller.currentRound++
+        controller.prepareForRound()
+        controller.runMasterSetup()
+
+        assertTrue(p1[Resource.GOLD] < startGold)
+        assertTrue(p2[Resource.GOLD] < startGold + 1)
+        assertEquals(startMasters, controller.board.positions.entries.count { it.value == p1 })
+        assertEquals(startMasters, controller.board.positions.entries.count { it.value == p2 })
+    }
 }

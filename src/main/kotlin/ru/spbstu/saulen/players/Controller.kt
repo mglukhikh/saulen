@@ -7,7 +7,7 @@ import java.util.*
 
 class Controller(vararg val players: Player) {
 
-    private val board = Board()
+    internal val board = Board()
 
     internal var currentRound = 0
 
@@ -170,10 +170,10 @@ class Controller(vararg val players: Player) {
         }
     }
 
-    private fun runMasterSetup() {
+    internal fun runMasterSetup() {
         val masters = mutableListOf<Player>()
         for (player in players) {
-            for (i in 0..player[Resource.MASTER]) {
+            for (i in 1..player[Resource.MASTER]) {
                 masters += player
             }
         }

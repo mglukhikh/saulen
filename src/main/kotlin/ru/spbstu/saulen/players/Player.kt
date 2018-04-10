@@ -87,4 +87,6 @@ abstract class Player private constructor(
             else -> playerQueue + 1
         }
     }
+
+    override fun toString(): String = name
 }
