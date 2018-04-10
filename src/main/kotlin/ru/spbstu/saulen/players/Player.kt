@@ -53,7 +53,9 @@ abstract class Player private constructor(
 
     val production = mutableListOf<Production>()
 
-    fun isAbleToProduce(production: Production) = this[WORKER] >= production.workers
+    fun isAbleToProduce(production: Production) = has(production.cost)
+
+    fun has(amount: ResourceAmount) = this[amount.resource] >= amount.amount
 
     operator fun plusAssign(production: Production) {
         this -= WORKER(production.workers)

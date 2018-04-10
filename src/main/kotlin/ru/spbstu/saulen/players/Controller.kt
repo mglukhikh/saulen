@@ -139,9 +139,18 @@ class Controller(vararg val players: Player) {
             for (player in players) {
                 if (player.marketQueue == queueIndex) {
                     if (player in activePlayers) {
-                        val answer = player.handleRequest(ContestCardRequest(board.contestCards))
+                        val cardsToChoose = board.contestCards.filter { player.has(it.cost) }
+                        var answer: Answer
+                        do {
+                            answer = if (cardsToChoose.isEmpty()) {
+                                PassAnswer
+                            } else {
+                                player.handleRequest(
+                                        ContestCardRequest(cardsToChoose)
+                                )
+                            }
+                        } while (answer != PassAnswer && (answer !is ContestCardAnswer || answer.card !in cardsToChoose))
                         when (answer) {
-                            // TODO: handle incorrect answers
                             PassAnswer -> {
                                 activePlayers -= player
                             }
@@ -149,20 +158,11 @@ class Controller(vararg val players: Player) {
                                 val card = answer.card
                                 when (card) {
                                     is Production -> {
-                                        if (player.isAbleToProduce(card)) {
-                                            player += card
-                                        } else {
-                                            activePlayers -= player
-                                        }
+                                        player += card
                                     }
                                     is Craftsman -> {
-                                        val cost = card.cost.amount
-                                        if (player[Resource.GOLD] >= cost) {
-                                            player -= Resource.GOLD(cost)
-                                            player += card
-                                        } else {
-                                            activePlayers -= player
-                                        }
+                                        player -= card.cost
+                                        player += card
                                     }
                                 }
                                 board.contestCards -= card

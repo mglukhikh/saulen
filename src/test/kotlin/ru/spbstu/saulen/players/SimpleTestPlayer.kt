@@ -13,6 +13,7 @@ class SimpleTestPlayer(
         return when (request) {
             is ContestCardRequest -> {
                 val cards = request.cards
+                require(cards.all { has(it.cost) })
                 cards.filterIsInstance<Production>()
                         .firstOrNull { it.workers <= this[Resource.WORKER] }
                         ?.let { ContestCardAnswer(it) }
