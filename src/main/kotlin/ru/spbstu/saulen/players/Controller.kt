@@ -29,99 +29,8 @@ class Controller(vararg val players: Player) {
         prepareForRound()
         runCardContest()
         runMasterSetup()
-        var returnMastersBack = true
-        var startPlayerIndex = -1
-        for ((position, ownerPlayer) in board.positions) {
-            // Before invocation
-            when (position) {
-                is TaxPosition -> {
-                    players.firstOrNull { Francis in it.advantages && !it.hasTaxFree }?.let {
-                        it += Resource.GOLD(position.amount - 2)
-                    }
-                }
-                is WinningPointPosition -> {
-                    ownerPlayer?.takeIf { PriorPhilip in it.advantages }?.let {
-                        it += Resource.WINNING_POINT(1)
-                    }
-                }
-            }
-
-            // Invocation
-            if (position.masterPosition) {
-                ownerPlayer?.let { position.invokeOn(it) }
-            } else {
-                for (player in players) {
-                    position.invokeOn(player)
-                }
-            }
-
-            // After invocation
-            when (position) {
-                is EventInvocationPosition -> {
-                    val event = position.event!!
-                    if (event == StadtMauer) {
-                        returnMastersBack = false
-                    }
-                    for (player in players) {
-                        if (player.hasEventProtection && !event.negative) {
-                            do {
-                                val answer = player.handleRequest(FreeResourceRequest)
-                                if (answer is BuyAnswer) {
-                                    player += answer.amount.resource(1)
-                                    board.market -= answer.amount.resource(1)
-                                }
-                            } while (answer !is BuyAnswer)
-                        }
-                    }
-                }
-                is TradePosition -> {
-                    var queueIndex = 0
-                    val activePlayers = players.toMutableSet()
-                    while (activePlayers.isNotEmpty()) {
-                        for (player in players) {
-                            if (player.marketQueue == queueIndex) {
-                                if (player in activePlayers) {
-                                    // Request for trade
-                                    val answer = player.handleRequest(TradeRequest(board.market))
-                                    when (answer) {
-                                        // TODO: handle incorrect answers
-                                        is BuyAnswer -> {
-                                            player += answer.amount
-                                            player -= Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
-                                            board.market -= answer.amount
-                                        }
-                                        is SellAnswer -> {
-                                            player += Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
-                                            player -= answer.amount
-                                        }
-                                        PassAnswer -> {
-                                            activePlayers -= player
-                                        }
-                                    }
-                                }
-                                break
-                            }
-                        }
-                        queueIndex = (queueIndex + 1) % players.size
-                    }
-                }
-                StartPlayerPosition -> {
-                    val startPlayer = board.positions[position]
-                    startPlayerIndex = players.indexOf(startPlayer)
-                }
-            }
-        }
-        for ((index, player) in players.withIndex()) {
-            player.endOfRound(players.size)
-            if (returnMastersBack) {
-                if (player[Resource.MASTER] == 2) {
-                    player += Resource.MASTER(1)
-                }
-            }
-            if (startPlayerIndex != -1) {
-                player.playerQueue = (index + players.size - startPlayerIndex) % players.size
-            }
-        }
+        val nextStartPlayer = runPositionHandling()
+        finishRound(nextStartPlayer)
     }
 
     internal fun prepareForRound() {
@@ -228,6 +137,109 @@ class Controller(vararg val players: Player) {
         }
         for (currentPlayer in masterCircle.descendingMap().values) {
             setMaster(currentPlayer, 0)
+        }
+    }
+
+    // Returns index of next start player, or -1 if next start player should be chosen by default
+    internal fun runPositionHandling(withEvent: Boolean = true, manualEvent: Event? = null): Int {
+        var returnMastersBack = true
+        var nextStartPlayer = -1
+        for ((position, ownerPlayer) in board.positions) {
+            // Before invocation
+            when (position) {
+                is TaxPosition -> {
+                    players.firstOrNull { Francis in it.advantages && !it.hasTaxFree }?.let {
+                        it += Resource.GOLD(position.amount - 2)
+                    }
+                }
+                is WinningPointPosition -> {
+                    ownerPlayer?.takeIf { PriorPhilip in it.advantages }?.let {
+                        it += Resource.WINNING_POINT(1)
+                    }
+                }
+            }
+
+            // Invocation
+            if (position.masterPosition) {
+                ownerPlayer?.let { position.invokeOn(it) }
+            } else {
+                for (player in players) {
+                    position.invokeOn(player)
+                }
+            }
+
+            // After invocation
+            when (position) {
+                is EventInvocationPosition -> if (withEvent) {
+                    val event = manualEvent ?: position.event!!
+                    if (event == StadtMauer) {
+                        returnMastersBack = false
+                    }
+                    for (player in players) {
+                        if (player.hasEventProtection && !event.negative) {
+                            do {
+                                val answer = player.handleRequest(FreeResourceRequest)
+                                if (answer is BuyAnswer) {
+                                    player += answer.amount.resource(1)
+                                    board.market -= answer.amount.resource(1)
+                                }
+                            } while (answer !is BuyAnswer)
+                        }
+                    }
+                }
+                is TradePosition -> {
+                    var queueIndex = 0
+                    val activePlayers = players.filter { it.marketQueue != -1 }.toMutableSet()
+                    while (activePlayers.isNotEmpty()) {
+                        for (player in players) {
+                            if (player.marketQueue == queueIndex) {
+                                if (player in activePlayers) {
+                                    // Request for trade
+                                    val answer = player.handleRequest(TradeRequest(board.market))
+                                    when (answer) {
+                                    // TODO: handle incorrect answers
+                                        is BuyAnswer -> {
+                                            player += answer.amount
+                                            player -= Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
+                                            board.market -= answer.amount
+                                        }
+                                        is SellAnswer -> {
+                                            player += Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
+                                            player -= answer.amount
+                                        }
+                                        PassAnswer -> {
+                                            activePlayers -= player
+                                        }
+                                    }
+                                }
+                                break
+                            }
+                        }
+                        queueIndex = (queueIndex + 1) % players.size
+                    }
+                }
+                StartPlayerPosition -> {
+                    val startPlayer = board.positions[position]
+                    nextStartPlayer = players.indexOf(startPlayer)
+                }
+            }
+        }
+        for (player in players) {
+            if (returnMastersBack) {
+                if (player[Resource.MASTER] == 2) {
+                    player += Resource.MASTER(1)
+                }
+            }
+        }
+        return nextStartPlayer
+    }
+
+    internal fun finishRound(nextStartPlayer: Int = -1) {
+        for ((index, player) in players.withIndex()) {
+            player.endOfRound(players.size)
+            if (nextStartPlayer != -1) {
+                player.playerQueue = (index + players.size - nextStartPlayer) % players.size
+            }
         }
     }
 

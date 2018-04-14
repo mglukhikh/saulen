@@ -5,7 +5,7 @@ import ru.spbstu.saulen.cards.Production
 import ru.spbstu.saulen.game.Color
 import ru.spbstu.saulen.game.Resource
 
-class SimpleTestPlayer(
+internal class SimpleTestPlayer(
         color: Color,
         playerQueue: Int
 ) : Player("Test player #$playerQueue", color, playerQueue) {

@@ -41,7 +41,7 @@ abstract class Player private constructor(
 
     var hasGrayWorkers = false
 
-    var marketQueue = 0
+    var marketQueue = -1
 
     val advantages = mutableListOf<Advantage>()
 

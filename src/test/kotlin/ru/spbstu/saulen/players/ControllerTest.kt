@@ -55,4 +55,36 @@ class ControllerTest {
         assertEquals(startMasters, controller.board.positions.entries.count { it.value == p1 })
         assertEquals(startMasters, controller.board.positions.entries.count { it.value == p2 })
     }
+
+    @Test
+    fun testCardContestWithHandling() {
+        val p1 = SimpleTestPlayer(Color.BLUE, 0)
+        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val startWorkers = p1[Resource.WORKER]
+        assertEquals(startWorkers, p2[Resource.WORKER])
+        val controller = Controller(p1, p2)
+        controller.currentRound++
+        controller.prepareForRound()
+        controller.runCardContest()
+
+        assertTrue(p1[Resource.WORKER] < startWorkers)
+        assertTrue(p2[Resource.WORKER] < startWorkers)
+        assertTrue(p1.production.isNotEmpty())
+        assertTrue(p2.production.isNotEmpty())
+        assertEquals(startWorkers, p1[Resource.WORKER] + p1.production.sumBy { it.workers })
+        assertEquals(startWorkers, p2[Resource.WORKER] + p2.production.sumBy { it.workers })
+
+        assertEquals(0, p1[Resource.SAND])
+        assertEquals(0, p1[Resource.WOOD])
+        assertEquals(0, p1[Resource.STONE])
+        assertEquals(0, p2[Resource.SAND])
+        assertEquals(0, p2[Resource.WOOD])
+        assertEquals(0, p2[Resource.STONE])
+
+        controller.runPositionHandling(withEvent = false)
+        assertEquals(startWorkers, p1[Resource.WORKER])
+        assertEquals(startWorkers, p2[Resource.WORKER])
+        assertTrue(p1[Resource.SAND] + p1[Resource.WOOD] + p1[Resource.STONE] >= 4)
+        assertTrue(p2[Resource.SAND] + p2[Resource.WOOD] + p2[Resource.STONE] >= 4)
+    }
 }
