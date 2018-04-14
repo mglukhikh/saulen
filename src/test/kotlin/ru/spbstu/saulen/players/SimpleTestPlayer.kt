@@ -9,6 +9,9 @@ internal class SimpleTestPlayer(
         color: Color,
         playerQueue: Int
 ) : Player("Test player #$playerQueue", color, playerQueue) {
+
+    internal var buyCraftsmen = true
+
     override fun handleRequest(request: Request): Answer {
         return when (request) {
             is ContestCardRequest -> {
@@ -17,14 +20,41 @@ internal class SimpleTestPlayer(
                 cards.filterIsInstance<Production>()
                         .firstOrNull { it.workers <= this[Resource.WORKER] }
                         ?.let { ContestCardAnswer(it) }
-                        ?: cards.filterIsInstance<Craftsman>()
+                        ?: run {
+                            if (!buyCraftsmen) return PassAnswer
+                            cards.filterIsInstance<Craftsman>()
                                     .firstOrNull { it.cost.amount <= this[Resource.GOLD] }
                                     ?.let { ContestCardAnswer(it) }
-                        ?: PassAnswer
+                                    ?: PassAnswer
+                        }
             }
             is SetMasterRequest -> {
                 val positions = request.positions
                 positions.firstOrNull()?.let { SetMasterAnswer(it) } ?: PassAnswer
+            }
+            is DropBuildingResourceRequest -> {
+                for (resource in Resource.BUILDING_RESOURCES) {
+                    if (this[resource] > 0) {
+                        return DropBuildingResourceAnswer(resource(minOf(request.toDrop, this[resource])))
+                    }
+                }
+                throw AssertionError("Building resources not found but should be dropped: ${request.toDrop}")
+            }
+            is UseCraftsmanRequest -> {
+                for ((craftsman, capacity) in request.craftsmenCapacities) {
+                    val expenses = craftsman.expenses
+                    if (!expenses.all { this.has(it) }) continue
+                    var toProduce = 1
+                    while (toProduce < capacity) {
+                        toProduce++
+                        if (!expenses.all { this.has(it * toProduce) }) {
+                            toProduce--
+                            break
+                        }
+                    }
+                    return UseCraftsmanAnswer(craftsman, toProduce)
+                }
+                PassAnswer
             }
             FreeResourceRequest -> TODO()
             is TradeRequest -> TODO()

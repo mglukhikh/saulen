@@ -30,6 +30,7 @@ class Controller(vararg val players: Player) {
         runCardContest()
         runMasterSetup()
         val nextStartPlayer = runPositionHandling()
+        runCraftsmenWork()
         finishRound(nextStartPlayer)
     }
 
@@ -234,6 +235,51 @@ class Controller(vararg val players: Player) {
         return nextStartPlayer
     }
 
+    internal fun runCraftsmenWork() {
+        for (player in players) {
+            // Produce winning points
+            val craftsmenCapacities = mutableMapOf<Craftsman, Int>()
+            for (craftsman in player.craftsmen) {
+                craftsmenCapacities[craftsman] = craftsman.capacity
+            }
+            do {
+                val craftsmen = player.craftsmen
+                val useAnswer = player.handleRequest(
+                        UseCraftsmanRequest(craftsmenCapacities)
+                )
+                if (useAnswer is UseCraftsmanAnswer) {
+                    val craftsman = useAnswer.craftsman
+                    if (craftsman !in craftsmen) continue
+                    var currentCapacity = craftsmenCapacities[craftsman] ?: 0
+                    val multiplier = minOf(currentCapacity, useAnswer.multiplier)
+                    if (multiplier == 0) continue
+                    for (i in 0 until multiplier) {
+                        for (resourceAmount in craftsman.expenses) {
+                            player -= resourceAmount
+                        }
+                        player += craftsman.income
+                        currentCapacity--
+                        craftsmenCapacities[craftsman] = currentCapacity
+                    }
+                }
+            } while (useAnswer !== PassAnswer)
+
+            // Drop resources above limit
+            var buildingResourceCount = player.buildingResourceCount
+            while (buildingResourceCount > BUILDING_RESOURCE_LIMIT) {
+                val dropAnswer = player.handleRequest(
+                        DropBuildingResourceRequest(BUILDING_RESOURCE_LIMIT - buildingResourceCount)
+                ) as? DropBuildingResourceAnswer ?: continue
+                if (player[dropAnswer.amount.resource] < dropAnswer.amount.amount) {
+                    player -= dropAnswer.amount.resource(player[dropAnswer.amount.resource])
+                } else {
+                    player -= dropAnswer.amount
+                }
+                buildingResourceCount = player.buildingResourceCount
+            }
+        }
+    }
+
     internal fun finishRound(nextStartPlayer: Int = -1) {
         for ((index, player) in players.withIndex()) {
             player.endOfRound(players.size)
@@ -247,5 +293,7 @@ class Controller(vararg val players: Player) {
         const val LAST_ROUND = 6
 
         const val START_MASTER_COST = 7
+
+        const val BUILDING_RESOURCE_LIMIT = 5
     }
 }

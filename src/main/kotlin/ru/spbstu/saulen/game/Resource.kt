@@ -1,5 +1,7 @@
 package ru.spbstu.saulen.game
 
+import java.util.*
+
 enum class Resource(
         val marketCost: Int,
         val purchaseAllowed: Boolean = true,
@@ -20,4 +22,9 @@ enum class Resource(
     override fun toString(): String {
         return name.toLowerCase().replace('_', ' ')
     }
+
+    companion object {
+        val BUILDING_RESOURCES = EnumSet.of(SAND, WOOD, STONE, METAL)
+    }
 }
+

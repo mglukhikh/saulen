@@ -9,6 +9,12 @@ data class Craftsman(
         override val cost: ResourceAmount = Resource.GOLD(0)
 ) : ContestCard {
 
+    val income get() = template.income
+
+    val expenses get() = template.expenses
+
+    val requirement get() = template.requirement
+
     fun up() = Craftsman(template, capacity + 1, cost)
 
     fun down() = Craftsman(template, capacity - 1, cost)

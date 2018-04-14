@@ -74,17 +74,41 @@ class ControllerTest {
         assertEquals(startWorkers, p1[Resource.WORKER] + p1.production.sumBy { it.workers })
         assertEquals(startWorkers, p2[Resource.WORKER] + p2.production.sumBy { it.workers })
 
-        assertEquals(0, p1[Resource.SAND])
-        assertEquals(0, p1[Resource.WOOD])
-        assertEquals(0, p1[Resource.STONE])
-        assertEquals(0, p2[Resource.SAND])
-        assertEquals(0, p2[Resource.WOOD])
-        assertEquals(0, p2[Resource.STONE])
+        assertEquals(0, p1.buildingResourceCount)
+        assertEquals(0, p2.buildingResourceCount)
 
         controller.runPositionHandling(withEvent = false)
         assertEquals(startWorkers, p1[Resource.WORKER])
         assertEquals(startWorkers, p2[Resource.WORKER])
-        assertTrue(p1[Resource.SAND] + p1[Resource.WOOD] + p1[Resource.STONE] >= 4)
-        assertTrue(p2[Resource.SAND] + p2[Resource.WOOD] + p2[Resource.STONE] >= 4)
+        assertTrue(p1.buildingResourceCount >= 4)
+        assertTrue(p2.buildingResourceCount >= 4)
+    }
+
+    @Test
+    fun testCardContestWithCraftsmen() {
+        val p1 = SimpleTestPlayer(Color.BLUE, 0)
+        p1.buyCraftsmen = false
+        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        p2.buyCraftsmen = false
+        val startWorkers = p1[Resource.WORKER]
+        assertEquals(startWorkers, p2[Resource.WORKER])
+        val startWinningPoints = p1[Resource.WINNING_POINT]
+        assertEquals(startWinningPoints, p2[Resource.WINNING_POINT])
+        val controller = Controller(p1, p2)
+        controller.currentRound++
+        controller.prepareForRound()
+        controller.runCardContest()
+
+        assertTrue(p1[Resource.WORKER] < startWorkers)
+        assertTrue(p2[Resource.WORKER] < startWorkers)
+        assertTrue(p1.production.isNotEmpty())
+        assertTrue(p2.production.isNotEmpty())
+        assertEquals(0, p1.buildingResourceCount)
+        assertEquals(0, p2.buildingResourceCount)
+
+        controller.runPositionHandling(withEvent = false)
+        controller.runCraftsmenWork()
+        assertTrue(p1[Resource.WINNING_POINT] > startWinningPoints)
+        assertTrue(p2[Resource.WINNING_POINT] > startWinningPoints)
     }
 }

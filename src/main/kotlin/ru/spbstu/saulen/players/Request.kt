@@ -2,6 +2,7 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.board.BoardPosition
 import ru.spbstu.saulen.cards.ContestCard
+import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.game.Stock
 import kotlin.reflect.KClass
 
@@ -33,4 +34,15 @@ class ContestCardRequest(val cards: List<ContestCard>) : Request(
 class SetMasterRequest(val cost: Int, val positions: List<BoardPosition>) : Request(
         "Choose one of free master positions for a cost $cost\n" + positions.render(),
         PassAnswer::class, SetMasterAnswer::class
+)
+
+class DropBuildingResourceRequest(val toDrop: Int) : Request(
+        "Choose sand / wood / stone to drop, total $toDrop units",
+        DropBuildingResourceAnswer::class
+)
+
+class UseCraftsmanRequest(val craftsmenCapacities: Map<Craftsman, Int>) : Request(
+        "Use one of your craftsmenCapacities to produce winning points\n" + craftsmenCapacities.entries.joinToString {
+            (craftsman, capacity) -> craftsman.toString() + " x$capacity"
+        }, PassAnswer::class, UseCraftsmanAnswer::class
 )
