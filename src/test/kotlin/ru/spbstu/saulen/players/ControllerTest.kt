@@ -29,10 +29,13 @@ class ControllerTest {
         assertEquals(startWorkers, p1[Resource.WORKER] + p1.production.sumBy { it.workers })
         assertEquals(startWorkers, p2[Resource.WORKER] + p2.production.sumBy { it.workers })
 
-        assertTrue(p1[Resource.GOLD] < startGold)
-        assertTrue(p2[Resource.GOLD] < startGold + 1)
-        assertTrue(p1.craftsmen.size > startCraftsmenNumber)
-        assertTrue(p2.craftsmen.size > startCraftsmenNumber)
+        assertTrue(p1[Resource.GOLD] < startGold || p2[Resource.GOLD] < startGold + 1)
+        if (p1[Resource.GOLD] < startGold) {
+            assertTrue(p1.craftsmen.size > startCraftsmenNumber)
+        }
+        if (p2[Resource.GOLD] < startGold) {
+            assertTrue(p2.craftsmen.size > startCraftsmenNumber)
+        }
         assertEquals(startGold, p1[Resource.GOLD] + p1.craftsmen.sumBy { it.cost.amount })
         assertEquals(startGold + 1, p2[Resource.GOLD] + p2.craftsmen.sumBy { it.cost.amount })
     }
@@ -80,8 +83,17 @@ class ControllerTest {
         controller.runPositionHandling(withEvent = false)
         assertEquals(startWorkers, p1[Resource.WORKER])
         assertEquals(startWorkers, p2[Resource.WORKER])
-        assertTrue(p1.buildingResourceCount >= 4)
-        assertTrue(p2.buildingResourceCount >= 4)
+        assertTrue(Resource.BUILDING_RESOURCES.joinToString(prefix = p1.toString()) {
+            it.name + ": " + p1[it]
+        }, p1.buildingResourceCount >= 3)
+        assertTrue(Resource.BUILDING_RESOURCES.joinToString(prefix = p2.toString()) {
+            it.name + ": " + p2[it]
+        }, p2.buildingResourceCount >= 3)
+        for (resource in Resource.BUILDING_RESOURCES) {
+            if (resource == Resource.METAL) continue
+            assertNotEquals(1, p1[resource])
+            assertNotEquals(1, p2[resource])
+        }
     }
 
     @Test
