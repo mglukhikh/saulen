@@ -46,7 +46,11 @@ class Controller(vararg val players: Player) {
         var queueIndex = 0
         val activePlayers = players.sortedBy { it.playerQueue }.toMutableSet()
         while (activePlayers.isNotEmpty() && board.contestCards.isNotEmpty()) {
-            val player = activePlayers.find { it.playerQueue == queueIndex } ?: continue
+            val player = activePlayers.find { it.playerQueue == queueIndex }
+            if (player == null) {
+                queueIndex = (queueIndex + 1) % players.size
+                continue
+            }
             val cardsToChoose = board.contestCards.filter { player.has(it.cost) }
             var answer: Answer
             do {
@@ -165,6 +169,7 @@ class Controller(vararg val players: Player) {
                 ownerPlayer?.let { position.invokeOn(it) }
             } else {
                 for (player in players) {
+                    if (!withEvent && position is EventInvocationPosition) continue
                     position.invokeOn(player)
                 }
             }
