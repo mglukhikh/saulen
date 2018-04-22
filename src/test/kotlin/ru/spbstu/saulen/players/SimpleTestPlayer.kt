@@ -42,6 +42,7 @@ internal class SimpleTestPlayer(
             }
             is UseCraftsmanRequest -> {
                 for ((craftsman, capacity) in request.craftsmenCapacities) {
+                    if (capacity <= 0) continue
                     val expenses = craftsman.expenses
                     if (!expenses.all { this.has(it) }) continue
                     var toProduce = 1
