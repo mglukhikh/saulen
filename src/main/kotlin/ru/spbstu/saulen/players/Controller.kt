@@ -333,14 +333,18 @@ class Controller(vararg val players: Player) {
             // Drop resources above limit
             var buildingResourceCount = player.buildingResourceCount
             while (buildingResourceCount > BUILDING_RESOURCE_LIMIT) {
+                val toDrop = buildingResourceCount - BUILDING_RESOURCE_LIMIT
+                log("Player $player has too much building resources: $buildingResourceCount, must drop $toDrop")
                 val dropAnswer = player.handleRequest(
-                        DropBuildingResourceRequest(BUILDING_RESOURCE_LIMIT - buildingResourceCount)
+                        DropBuildingResourceRequest(toDrop)
                 ) as? DropBuildingResourceAnswer ?: continue
-                if (player[dropAnswer.amount.resource] < dropAnswer.amount.amount) {
-                    player -= dropAnswer.amount.resource(player[dropAnswer.amount.resource])
+                val dropped = if (player[dropAnswer.amount.resource] < dropAnswer.amount.amount) {
+                    dropAnswer.amount.resource(player[dropAnswer.amount.resource])
                 } else {
-                    player -= dropAnswer.amount
+                    dropAnswer.amount
                 }
+                player -= dropped
+                log("Player $player dropped $dropped")
                 buildingResourceCount = player.buildingResourceCount
             }
         }
