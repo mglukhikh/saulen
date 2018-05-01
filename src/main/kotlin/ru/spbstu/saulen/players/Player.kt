@@ -92,6 +92,12 @@ abstract class Player private constructor(
     internal fun resourceDescription(vararg resources: Resource) = resourceDescription(resources.toList())
 
     internal fun resourceDescription(resources: List<Resource>): String {
+        resources.forEach {
+            val amount = this[it]
+            if (amount < 0) {
+                throw AssertionError("Negative amount of $it: $amount")
+            }
+        }
         return resources.joinToString { "$it: ${this[it]}" }
     }
 }
