@@ -11,7 +11,14 @@ class Controller(vararg val players: Player) {
 
     internal var currentRound = 0
 
+    internal var silent = true
+
     private val random = Random()
+
+    private fun log(s: String) {
+        if (silent) return
+        println(s)
+    }
 
     fun runGame(): Map<Player, Int> {
         while (currentRound < LAST_ROUND) {
@@ -26,12 +33,19 @@ class Controller(vararg val players: Player) {
     }
 
     private fun runRound() {
+        log("\n\n")
+        log("===== ROUND $currentRound STARTED =====")
+        log("Starting player: ${players.find { it.playerQueue == 0 }}")
         prepareForRound()
+        for (player in players) {
+            log("Player $player resources: ${player.resourceDescription(resourcesToLog)}")
+        }
         runCardContest()
         runMasterSetup()
         val nextStartPlayer = runPositionHandling()
         runCraftsmenWork()
         finishRound(nextStartPlayer)
+        log("===== ROUND $currentRound FINISHED =====")
     }
 
     internal fun prepareForRound() {
@@ -43,6 +57,8 @@ class Controller(vararg val players: Player) {
     }
 
     internal fun runCardContest() {
+        log("=== Card contest started ===")
+        log("Contest cards available: ${board.contestCards}")
         var queueIndex = 0
         val activePlayers = players.sortedBy { it.playerQueue }.toMutableSet()
         while (activePlayers.isNotEmpty() && board.contestCards.isNotEmpty()) {
@@ -64,10 +80,12 @@ class Controller(vararg val players: Player) {
             } while (answer != PassAnswer && (answer !is ContestCardAnswer || answer.card !in cardsToChoose))
             when (answer) {
                 PassAnswer -> {
+                    log("Player $player passes")
                     activePlayers -= player
                 }
                 is ContestCardAnswer -> {
                     val card = answer.card
+                    log("Player $player takes $card for ${card.cost}")
                     when (card) {
                         is Production -> {
                             player += card
@@ -82,9 +100,11 @@ class Controller(vararg val players: Player) {
             }
             queueIndex = (queueIndex + 1) % players.size
         }
+        log("Card contest finished")
     }
 
     internal fun runMasterSetup() {
+        log("=== Master contest started ===")
         val masters = mutableListOf<Player>()
         for (player in players) {
             for (i in 1..player[Resource.MASTER]) {
@@ -110,6 +130,7 @@ class Controller(vararg val players: Player) {
                     PassAnswer -> {
                         if (cost > 0) {
                             masterCircle[cost] = currentPlayer
+                            log("Player $currentPlayer chooses to delay his master")
                         } else {
                             incorrect = true
                         }
@@ -118,6 +139,11 @@ class Controller(vararg val players: Player) {
                         if (board.positions[answer.position] == null) {
                             currentPlayer -= Resource.GOLD(cost)
                             board.positions[answer.position] = currentPlayer
+                            if (cost > 0) {
+                                log("Player $currentPlayer buys his master for $cost and sets it to ${answer.position}")
+                            } else {
+                                log("Player $currentPlayer takes his master for free and sets it to ${answer.position}")
+                            }
                         } else {
                             incorrect = true
                         }
@@ -138,15 +164,18 @@ class Controller(vararg val players: Player) {
             // TODO: allow starting player to put current master back once
 
             val cost = currentCost--
+            log("Player $currentPlayer can buy his master for $cost")
             setMaster(currentPlayer, cost)
         }
         for (currentPlayer in masterCircle.descendingMap().values) {
             setMaster(currentPlayer, 0)
         }
+        log("=== Master contest finished ===")
     }
 
     // Returns index of next start player, or -1 if next start player should be chosen by default
     internal fun runPositionHandling(withEvent: Boolean = true, manualEvent: Event? = null): Int {
+        log("=== Position handling started ===")
         var returnMastersBack = true
         var nextStartPlayer = -1
         for ((position, ownerPlayer) in board.positions) {
@@ -154,11 +183,13 @@ class Controller(vararg val players: Player) {
             when (position) {
                 is TaxPosition -> {
                     players.firstOrNull { Francis in it.advantages && !it.hasTaxFree }?.let {
+                        log("Player $it pays minimum tax because of Francis")
                         it += Resource.GOLD(position.amount - 2)
                     }
                 }
                 is WinningPointPosition -> {
                     ownerPlayer?.takeIf { PriorPhilip in it.advantages }?.let {
+                        log("Player $it gets extra winning point because of Prior Philip")
                         it += Resource.WINNING_POINT(1)
                     }
                 }
@@ -166,11 +197,11 @@ class Controller(vararg val players: Player) {
 
             // Invocation
             if (position.masterPosition) {
-                ownerPlayer?.let { position.invokeOn(it) }
+                ownerPlayer?.let { position.invokeOn(it, ::log) }
             } else {
                 for (player in players) {
                     if (!withEvent && position is EventInvocationPosition) continue
-                    position.invokeOn(player)
+                    position.invokeOn(player, ::log)
                 }
             }
 
@@ -183,9 +214,11 @@ class Controller(vararg val players: Player) {
                     }
                     for (player in players) {
                         if (player.hasEventProtection && !event.negative) {
+                            log("Player $player should select a free resource")
                             do {
                                 val answer = player.handleRequest(FreeResourceRequest)
                                 if (answer is BuyAnswer) {
+                                    log("Player $player selects ${answer.amount.resource}")
                                     player += answer.amount.resource(1)
                                     board.market -= answer.amount.resource(1)
                                 }
@@ -194,26 +227,36 @@ class Controller(vararg val players: Player) {
                     }
                 }
                 is TradePosition -> {
+                    log("= Market trade started")
                     var queueIndex = 0
                     val activePlayers = players.filter { it.marketQueue != -1 }.toMutableSet()
+                    log("Active trade players: $activePlayers")
                     while (activePlayers.isNotEmpty()) {
                         for (player in players) {
                             if (player.marketQueue == queueIndex) {
                                 if (player in activePlayers) {
+                                    log("Player $player trade turn")
                                     // Request for trade
                                     val answer = player.handleRequest(TradeRequest(board.market))
                                     when (answer) {
                                     // TODO: handle incorrect answers
                                         is BuyAnswer -> {
-                                            player += answer.amount
-                                            player -= Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
-                                            board.market -= answer.amount
+                                            val amount = answer.amount
+                                            player += amount
+                                            val cost = amount.resource.marketCost * amount.amount
+                                            log("Player $player buys $amount for $cost")
+                                            player -= Resource.GOLD(cost)
+                                            board.market -= amount
                                         }
                                         is SellAnswer -> {
-                                            player += Resource.GOLD(answer.amount.resource.marketCost * answer.amount.amount)
-                                            player -= answer.amount
+                                            val amount = answer.amount
+                                            val cost = amount.resource.marketCost * amount.amount
+                                            log("Player $player sells $amount for $cost")
+                                            player += Resource.GOLD(cost)
+                                            player -= amount
                                         }
                                         PassAnswer -> {
+                                            log("Player $player ends trade")
                                             activePlayers -= player
                                         }
                                     }
@@ -223,10 +266,16 @@ class Controller(vararg val players: Player) {
                         }
                         queueIndex = (queueIndex + 1) % players.size
                     }
+                    log("= Market trade finished")
                 }
                 StartPlayerPosition -> {
                     val startPlayer = board.positions[position]
-                    nextStartPlayer = players.indexOf(startPlayer)
+                    if (startPlayer != null) {
+                        log("Start player for next round reset: $startPlayer")
+                        nextStartPlayer = players.indexOf(startPlayer)
+                    } else {
+
+                    }
                 }
             }
         }
@@ -237,11 +286,16 @@ class Controller(vararg val players: Player) {
                 }
             }
         }
+        log("=== Position handling finished ===")
         return nextStartPlayer
     }
 
     internal fun runCraftsmenWork() {
+        log("=== Craftsmen work started ===")
         for (player in players) {
+            log("Player $player production")
+            log("Resources before: ${player.resourceDescription(resourcesToLog)}")
+            log("Craftsmen: ${player.craftsmen}")
             // Produce winning points
             val craftsmenCapacities = mutableMapOf<Craftsman, Int>()
             for (craftsman in player.craftsmen) {
@@ -258,6 +312,7 @@ class Controller(vararg val players: Player) {
                     var currentCapacity = craftsmenCapacities[craftsman] ?: 0
                     val multiplier = minOf(currentCapacity, useAnswer.multiplier)
                     if (multiplier == 0) continue
+                    log("Player $player uses craftsman $craftsman $multiplier times")
                     for (i in 0 until multiplier) {
                         for (resourceAmount in craftsman.expenses) {
                             player -= resourceAmount
@@ -268,6 +323,7 @@ class Controller(vararg val players: Player) {
                     }
                 }
             } while (useAnswer !== PassAnswer)
+            log("Resources after: ${player.resourceDescription(resourcesToLog)}")
 
             // Drop resources above limit
             var buildingResourceCount = player.buildingResourceCount
@@ -283,6 +339,7 @@ class Controller(vararg val players: Player) {
                 buildingResourceCount = player.buildingResourceCount
             }
         }
+        log("=== Craftsmen work finished ===")
     }
 
     internal fun finishRound(nextStartPlayer: Int = -1) {
@@ -300,5 +357,11 @@ class Controller(vararg val players: Player) {
         const val START_MASTER_COST = 7
 
         const val BUILDING_RESOURCE_LIMIT = 5
+
+        val resourcesToLog = listOf(
+                Resource.WINNING_POINT, Resource.GOLD,
+                Resource.SAND, Resource.WOOD,
+                Resource.STONE, Resource.METAL
+        )
     }
 }

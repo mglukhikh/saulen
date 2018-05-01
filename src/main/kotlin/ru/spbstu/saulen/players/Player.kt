@@ -6,7 +6,6 @@ import ru.spbstu.saulen.game.Resource.*
 
 abstract class Player private constructor(
         val name: String,
-        val color: Color,
         private val stock: Stock,
         var playerQueue: Int
 ) : ResourceStorage by stock {
@@ -23,7 +22,7 @@ abstract class Player private constructor(
 
     abstract fun handleRequest(request: Request): Answer
 
-    constructor(name: String, color: Color, playerQueue: Int): this(name, color, Stock(), playerQueue)
+    constructor(name: String, playerQueue: Int): this(name, Stock(), playerQueue)
 
     val craftsmen = Craftsman.startingCards.toMutableList()
 
@@ -89,4 +88,10 @@ abstract class Player private constructor(
     }
 
     override fun toString(): String = name
+
+    internal fun resourceDescription(vararg resources: Resource) = resourceDescription(resources.toList())
+
+    internal fun resourceDescription(resources: List<Resource>): String {
+        return resources.joinToString { "$it: ${this[it]}" }
+    }
 }

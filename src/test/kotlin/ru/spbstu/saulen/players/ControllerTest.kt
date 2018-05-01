@@ -2,14 +2,13 @@ package ru.spbstu.saulen.players
 
 import org.junit.Assert.*
 import org.junit.Test
-import ru.spbstu.saulen.game.Color
 import ru.spbstu.saulen.game.Resource
 
 class ControllerTest {
     @Test
     fun testCardContest() {
-        val p1 = SimpleTestPlayer(Color.BLUE, 0)
-        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val p1 = SimpleTestPlayer(0)
+        val p2 = SimpleTestPlayer(1)
         val startWorkers = p1[Resource.WORKER]
         val startGold = p1[Resource.GOLD]
         val startCraftsmenNumber = p1.craftsmen.size
@@ -42,8 +41,8 @@ class ControllerTest {
 
     @Test
     fun testMasterSetup() {
-        val p1 = SimpleTestPlayer(Color.BLUE, 0)
-        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val p1 = SimpleTestPlayer(0)
+        val p2 = SimpleTestPlayer(1)
         val startGold = p1[Resource.GOLD]
         assertEquals(startGold + 1, p2[Resource.GOLD])
         val startMasters = p1[Resource.MASTER]
@@ -61,8 +60,8 @@ class ControllerTest {
 
     @Test
     fun testCardContestWithHandling() {
-        val p1 = SimpleTestPlayer(Color.BLUE, 0)
-        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val p1 = SimpleTestPlayer(0)
+        val p2 = SimpleTestPlayer(1)
         val startWorkers = p1[Resource.WORKER]
         assertEquals(startWorkers, p2[Resource.WORKER])
         val controller = Controller(p1, p2)
@@ -98,9 +97,9 @@ class ControllerTest {
 
     @Test
     fun testCardContestWithCraftsmen() {
-        val p1 = SimpleTestPlayer(Color.BLUE, 0)
+        val p1 = SimpleTestPlayer(0)
         p1.buyCraftsmen = false
-        val p2 = SimpleTestPlayer(Color.GREEN, 1)
+        val p2 = SimpleTestPlayer(1)
         p2.buyCraftsmen = false
         val startWorkers = p1[Resource.WORKER]
         assertEquals(startWorkers, p2[Resource.WORKER])
@@ -122,5 +121,14 @@ class ControllerTest {
         controller.runCraftsmenWork()
         assertTrue(p1[Resource.WINNING_POINT] > startWinningPoints)
         assertTrue(p2[Resource.WINNING_POINT] > startWinningPoints)
+    }
+
+    @Test
+    fun smokeTestForTwo() {
+        val p1 = SimpleTestPlayer(0)
+        val p2 = SimpleTestPlayer(1)
+        val controller = Controller(p1, p2)
+        controller.silent = false
+        controller.runGame()
     }
 }

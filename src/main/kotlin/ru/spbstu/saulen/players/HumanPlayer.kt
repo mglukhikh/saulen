@@ -1,14 +1,12 @@
 package ru.spbstu.saulen.players
 
-import ru.spbstu.saulen.game.Color
 import ru.spbstu.saulen.game.Resource
 import ru.spbstu.saulen.game.ResourceAmount
 
 class HumanPlayer(
         name: String,
-        color: Color,
         playerQueue: Int
-) : Player(name, color, playerQueue) {
+) : Player(name, playerQueue) {
     override fun handleRequest(request: Request): Answer {
         println("For $name: ${request.message}")
         for (answerClass in request.possibleAnswers) {

@@ -2,13 +2,11 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.cards.Production
-import ru.spbstu.saulen.game.Color
 import ru.spbstu.saulen.game.Resource
 
 internal class SimpleTestPlayer(
-        color: Color,
         playerQueue: Int
-) : Player("Test player #$playerQueue", color, playerQueue) {
+) : Player(names[playerQueue], playerQueue) {
 
     internal var buyCraftsmen = true
 
@@ -60,5 +58,9 @@ internal class SimpleTestPlayer(
             FreeResourceRequest -> TODO()
             is TradeRequest -> TODO()
         }
+    }
+
+    companion object {
+        val names = listOf("Alex", "Bob", "Chris", "Dick")
     }
 }
