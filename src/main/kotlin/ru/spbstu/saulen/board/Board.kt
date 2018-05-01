@@ -66,9 +66,10 @@ class Board {
             }
         }
         market.apply {
+            this.clear()
             this += Resource.WOOD(4)
             this += Resource.SAND(4)
-            this += Resource.METAL(4)
+            this += Resource.STONE(4)
         }
         if (craftsmen.isNotEmpty()) {
             throw AssertionError("All craftsmen should be spent during round preparation")

@@ -27,6 +27,7 @@ class Stock : ResourceStorage {
                 this -= ResourceAmount(Resource.WINNING_POINT, minOf(this[Resource.WINNING_POINT], remainder / 2))
                 return
             }
+            // This check is necessary e.g. for kalte winter
             else if (amount.amount != 1) {
                 throw IllegalStateException("Not enough resources of type ${amount.resource.name}: " +
                         "required ${amount.amount}, available ${this[amount.resource]}")
@@ -36,4 +37,10 @@ class Stock : ResourceStorage {
     }
 
     override operator fun get(resource: Resource): Int = resources[resource]!!
+
+    fun clear() {
+        for (resource in Resource.values()) {
+            resources.put(resource, 0)
+        }
+    }
 }
