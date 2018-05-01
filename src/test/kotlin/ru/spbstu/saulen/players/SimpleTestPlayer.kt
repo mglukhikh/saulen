@@ -55,7 +55,7 @@ internal class SimpleTestPlayer(
                 }
                 PassAnswer
             }
-            FreeResourceRequest -> TODO()
+            FreeResourceRequest -> BuyAnswer(Resource.STONE(1))
             is TradeRequest -> TODO()
         }
     }
