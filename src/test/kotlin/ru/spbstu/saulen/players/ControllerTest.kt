@@ -132,4 +132,15 @@ class ControllerTest {
         controller.silent = false
         controller.runGame()
     }
+
+    @Test
+    fun smokeTestForFour() {
+        val p1 = SimpleTestPlayer(0)
+        val p2 = SimpleTestPlayer(1)
+        val p3 = SimpleTestPlayer(2)
+        val p4 = SimpleTestPlayer(3)
+        val controller = Controller(p1, p2, p3, p4)
+        controller.silent = false
+        controller.runGame()
+    }
 }
