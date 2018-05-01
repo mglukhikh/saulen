@@ -89,14 +89,16 @@ abstract class Player private constructor(
 
     override fun toString(): String = name
 
-    internal fun resourceDescription(vararg resources: Resource) = resourceDescription(resources.toList())
+    internal fun resourceDescription(checkNegative: Boolean, vararg resources: Resource) =
+            resourceDescription(resources.toList(), checkNegative)
 
-    internal fun resourceDescription(resources: List<Resource>): String {
-        resources.forEach {
-            val amount = this[it]
-            // -1 is possible for kalte winter
-            if (amount < -1) {
-                throw AssertionError("Negative amount of $it: $amount")
+    internal fun resourceDescription(resources: List<Resource>, checkNegative: Boolean = true): String {
+        if (checkNegative) {
+            resources.forEach {
+                val amount = this[it]
+                if (amount < 0) {
+                    throw AssertionError("Negative amount of $it: $amount")
+                }
             }
         }
         return resources.joinToString { "$it: ${this[it]}" }

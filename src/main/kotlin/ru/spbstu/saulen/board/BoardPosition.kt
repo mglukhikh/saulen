@@ -94,9 +94,10 @@ class WinningPointPosition(val amount: Int) : BoardPosition("Winning points $amo
 object ProductionPosition : BoardPosition("", false) {
     override fun invokeOn(player: Player, log: (String) -> Unit) {
         log("Player $player produces resources")
-        log("Before: ${player.resourceDescription(Resource.SAND, Resource.WOOD, Resource.STONE)}")
+        // Here we can have negative resources due to kalte winter
+        log("Before: ${player.resourceDescription(false, Resource.SAND, Resource.WOOD, Resource.STONE)}")
         player.produce()
-        log("After: ${player.resourceDescription(Resource.SAND, Resource.WOOD, Resource.STONE)}")
+        log("After: ${player.resourceDescription(true, Resource.SAND, Resource.WOOD, Resource.STONE)}")
     }
 }
 
