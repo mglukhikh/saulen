@@ -56,6 +56,7 @@ class ControllerTest {
         assertTrue(p2[Resource.GOLD] < startGold + 1)
         assertEquals(startMasters, controller.board.positions.entries.count { it.value == p1 })
         assertEquals(startMasters, controller.board.positions.entries.count { it.value == p2 })
+        assertEquals(0, controller.board.positions.entries.count { !it.key.masterPosition && it.value != null })
     }
 
     @Test

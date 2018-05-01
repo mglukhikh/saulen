@@ -117,7 +117,12 @@ class Controller(vararg val players: Player) {
         var currentCost = START_MASTER_COST
 
         fun setMaster(currentPlayer: Player, cost: Int) {
-            val request = SetMasterRequest(cost, board.positions.filterValues { it == null }.keys.toList())
+            val accessiblePositions =
+                    board.positions.filter { it.key.masterPosition }.filterValues { it == null }.keys.toList()
+            val request = SetMasterRequest(
+                    cost,
+                    accessiblePositions
+            )
             var answer = if (currentPlayer[Resource.GOLD] < cost) {
                 // TODO: Use Remigius?
                 PassAnswer
@@ -136,7 +141,7 @@ class Controller(vararg val players: Player) {
                         }
                     }
                     is SetMasterAnswer -> {
-                        if (board.positions[answer.position] == null) {
+                        if (answer.position in accessiblePositions) {
                             currentPlayer -= Resource.GOLD(cost)
                             board.positions[answer.position] = currentPlayer
                             if (cost > 0) {
