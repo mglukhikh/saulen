@@ -12,6 +12,7 @@ class Stock : ResourceStorage {
     override operator fun plusAssign(amount: ResourceAmount) {
         if (amount.amount < 0) {
             minusAssign(-amount)
+            return
         }
         resources[amount.resource] = this[amount.resource] + amount.amount
     }
@@ -19,11 +20,12 @@ class Stock : ResourceStorage {
     override operator fun minusAssign(amount: ResourceAmount) {
         if (amount.amount < 0) {
             plusAssign(-amount)
+            return
         }
         if (this[amount.resource] < amount.amount) {
             if (amount.resource == Resource.GOLD) {
-                resources[amount.resource] = 0
                 val remainder = amount.amount - this[amount.resource]
+                resources[amount.resource] = 0
                 this -= ResourceAmount(Resource.WINNING_POINT, minOf(this[Resource.WINNING_POINT], remainder / 2))
                 return
             }
