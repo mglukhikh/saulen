@@ -113,7 +113,7 @@ object Thomas : Advantage(AdvantageKind.ONETIME) {
 object Remigius : Advantage(AdvantageKind.ONETIME) {
     // Du darfst in einer beliebigen Runde einen eigenen gezogenen Baumeister kostenlos einsetzen
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        // Implemented manually (controller)
     }
 
 }

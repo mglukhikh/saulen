@@ -66,6 +66,7 @@ internal class SimpleTestPlayer(
             }
             FreeResourceRequest -> BuyAnswer(Resource.STONE(1))
             is DropCraftsmanRequest -> DropCraftsmanAnswer(request.craftsmen.minBy { it.cost.amount }!!)
+            is UseAdvantageRequest -> UseAdvantageAnswer(request.advantage)
             is TradeRequest -> when {
                 has(Resource.GOLD(8)) -> {
                     val market = request.market

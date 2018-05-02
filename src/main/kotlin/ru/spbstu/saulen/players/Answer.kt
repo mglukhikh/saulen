@@ -1,6 +1,7 @@
 package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.board.BoardPosition
+import ru.spbstu.saulen.cards.Advantage
 import ru.spbstu.saulen.cards.ContestCard
 import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.game.ResourceAmount
@@ -22,3 +23,5 @@ data class DropBuildingResourceAnswer(val amount: ResourceAmount) : Answer()
 data class UseCraftsmanAnswer(val craftsman: Craftsman, val multiplier: Int) : Answer()
 
 data class DropCraftsmanAnswer(val craftsman: Craftsman) : Answer()
+
+data class UseAdvantageAnswer(val advantage: Advantage) : Answer()

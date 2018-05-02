@@ -103,6 +103,16 @@ class Controller(vararg val players: Player) {
         log("Card contest finished")
     }
 
+    private fun Player.useAdvantageQuestion(advantage: Advantage): Boolean {
+        if (advantage !in advantages) return false
+        val answer = handleRequest(UseAdvantageRequest(advantage))
+        if (answer is UseAdvantageAnswer && answer.advantage == advantage) {
+            advantages -= advantage
+            return true
+        }
+        return false
+    }
+
     internal fun runMasterSetup() {
         log("=== Master contest started ===")
         val masters = mutableListOf<Player>()
@@ -124,8 +134,17 @@ class Controller(vararg val players: Player) {
                     accessiblePositions
             )
             var answer = if (currentPlayer[Resource.GOLD] < cost) {
-                // TODO: Use Remigius?
-                PassAnswer
+                if (currentPlayer.useAdvantageQuestion(Remigius)) {
+                    log("Player $currentPlayer uses Remigius to set master for free")
+                    currentPlayer += Resource.GOLD(cost)
+                    var answer: Answer
+                    do {
+                        answer = currentPlayer.handleRequest(request)
+                    } while (answer == PassAnswer)
+                    answer
+                } else {
+                    PassAnswer
+                }
             } else {
                 currentPlayer.handleRequest(request)
             }

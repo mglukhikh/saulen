@@ -1,6 +1,7 @@
 package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.board.BoardPosition
+import ru.spbstu.saulen.cards.Advantage
 import ru.spbstu.saulen.cards.ContestCard
 import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.game.Stock
@@ -47,7 +48,12 @@ class UseCraftsmanRequest(val craftsmenCapacities: Map<Craftsman, Int>) : Reques
         }, PassAnswer::class, UseCraftsmanAnswer::class
 )
 
-class DropCraftsmanRequest(val craftsmen: List<Craftsman>, val limit: Int) : Request(
+class DropCraftsmanRequest(val craftsmen: List<Craftsman>, limit: Int) : Request(
         "Craftsmen limit exceeded (${craftsmen.size}/$limit), drop crafsman" + craftsmen.joinToString(),
         DropCraftsmanAnswer::class
+)
+
+class UseAdvantageRequest(val advantage: Advantage) : Request(
+        "Choose to use advantage $advantage or not",
+        PassAnswer::class, UseAdvantageAnswer::class
 )
