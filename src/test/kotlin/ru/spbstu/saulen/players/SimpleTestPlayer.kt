@@ -56,6 +56,7 @@ internal class SimpleTestPlayer(
                 PassAnswer
             }
             FreeResourceRequest -> BuyAnswer(Resource.STONE(1))
+            is DropCraftsmanRequest -> DropCraftsmanAnswer(request.craftsmen.minBy { it.cost.amount }!!)
             is TradeRequest -> TODO()
         }
     }

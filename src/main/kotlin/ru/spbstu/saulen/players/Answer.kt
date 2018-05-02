@@ -20,3 +20,5 @@ data class SetMasterAnswer(val position: BoardPosition) : Answer()
 data class DropBuildingResourceAnswer(val amount: ResourceAmount) : Answer()
 
 data class UseCraftsmanAnswer(val craftsman: Craftsman, val multiplier: Int) : Answer()
+
+data class DropCraftsmanAnswer(val craftsman: Craftsman) : Answer()

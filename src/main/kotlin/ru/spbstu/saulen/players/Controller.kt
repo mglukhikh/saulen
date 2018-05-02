@@ -300,14 +300,26 @@ class Controller(vararg val players: Player) {
         for (player in players) {
             log("Player $player production")
             log("Resources before: ${player.resourceDescription(resourcesToLog)}")
-            log("Craftsmen: ${player.craftsmen}")
+            val craftsmen = player.craftsmen
+            log("Craftsmen: $craftsmen")
+            // Check limit
+            val craftsmenLimit = player[Resource.CRAFTSMEN_LIMIT]
+            while (craftsmen.size > craftsmenLimit) {
+                log("Player $player has too much craftsmen: ${craftsmen.size}/$craftsmenLimit")
+                val dropAnswer = player.handleRequest(
+                        DropCraftsmanRequest(craftsmen, craftsmenLimit)
+                )
+                if (dropAnswer is DropCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
+                    log("Player $player dropped ${dropAnswer.craftsman}")
+                    player.craftsmen -= dropAnswer.craftsman
+                }
+            }
             // Produce winning points
             val craftsmenCapacities = mutableMapOf<Craftsman, Int>()
-            for (craftsman in player.craftsmen) {
+            for (craftsman in craftsmen) {
                 craftsmenCapacities[craftsman] = craftsman.capacity
             }
             do {
-                val craftsmen = player.craftsmen
                 val useAnswer = player.handleRequest(
                         UseCraftsmanRequest(craftsmenCapacities)
                 )

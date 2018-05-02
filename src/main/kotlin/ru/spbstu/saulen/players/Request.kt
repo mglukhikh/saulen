@@ -46,3 +46,8 @@ class UseCraftsmanRequest(val craftsmenCapacities: Map<Craftsman, Int>) : Reques
             (craftsman, capacity) -> craftsman.toString() + " x$capacity"
         }, PassAnswer::class, UseCraftsmanAnswer::class
 )
+
+class DropCraftsmanRequest(val craftsmen: List<Craftsman>, val limit: Int) : Request(
+        "Craftsmen limit exceeded (${craftsmen.size}/$limit), drop crafsman" + craftsmen.joinToString(),
+        DropCraftsmanAnswer::class
+)
