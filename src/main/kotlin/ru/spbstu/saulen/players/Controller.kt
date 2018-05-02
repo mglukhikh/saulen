@@ -295,6 +295,16 @@ class Controller(vararg val players: Player) {
         return nextStartPlayer
     }
 
+    private fun Player.requirementMatched(craftsman: Craftsman): Boolean {
+        val requirement = craftsman.requirement
+        return when (requirement) {
+            Resource.METAL::class.java -> has(Resource.METAL(1))
+            Mortelmischer::class.java -> craftsmen.any { requirement.isInstance(it) }
+            null -> true
+            else -> throw AssertionError("Unknown craftsman requirement: $requirement")
+        }
+    }
+
     internal fun runCraftsmenWork() {
         log("=== Craftsmen work started ===")
         for (player in players) {
@@ -317,21 +327,16 @@ class Controller(vararg val players: Player) {
             // Produce winning points
             val craftsmenCapacities = mutableMapOf<Craftsman, Int>()
             for (craftsman in craftsmen) {
+                if (!player.requirementMatched(craftsman)) {
+                    log("Player $player does not match $craftsman requirement and cannot use it")
+                    craftsmenCapacities[craftsman] = 0
+                    continue
+                }
                 val capacity = craftsman.capacity
                 craftsmenCapacities[craftsman] = capacity
-                // Auto-production
                 if (capacity == 0) {
-                    val requirement = craftsman.requirement
-                    val matched = when (requirement) {
-                        Resource.METAL::class.java -> player.has(Resource.METAL(1))
-                        CraftsmanTemplate::class.java -> player.craftsmen.any { requirement.isInstance(it) }
-                        null -> true
-                        else -> throw AssertionError("Unknown craftsman requirement: $requirement")
-                    }
-                    if (matched) {
-                        log("Player $player uses craftsman $craftsman automatically")
-                        player += craftsman.income
-                    }
+                    log("Player $player uses craftsman $craftsman automatically")
+                    player += craftsman.income
                 }
             }
             do {
