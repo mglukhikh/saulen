@@ -2,6 +2,8 @@ package ru.spbstu.saulen.cards
 
 import ru.spbstu.saulen.game.Resource
 import ru.spbstu.saulen.game.ResourceAmount
+import ru.spbstu.saulen.players.DropCraftsmanAnswer
+import ru.spbstu.saulen.players.DropCraftsmanRequest
 import ru.spbstu.saulen.players.Player
 
 sealed class Event(val negative: Boolean) {
@@ -65,7 +67,21 @@ object Freiwilligen : Event(negative = false) {
 object Teile : Event(negative = true) {
     // Alle Spieler verlieren einen Handwerker ihrer Wahl
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        val craftsmen = player.craftsmen
+        //log("Craftsmen: $craftsmen")
+        //log("Player $player has too much craftsmen: ${craftsmen.size}/$craftsmenLimit")
+        do {
+            val dropAnswer = player.handleRequest(
+                    DropCraftsmanRequest(craftsmen, craftsmen.size - 1)
+            )
+            var correct = true
+            if (dropAnswer is DropCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
+                //log("Player $player dropped ${dropAnswer.craftsman}")
+                player.craftsmen -= dropAnswer.craftsman
+            } else {
+                correct = false
+            }
+        } while (!correct)
     }
 }
 
