@@ -242,29 +242,48 @@ class Controller(vararg val players: Player) {
                                 if (player in activePlayers) {
                                     log("Player $player trade turn")
                                     // Request for trade
-                                    val answer = player.handleRequest(TradeRequest(board.market))
-                                    when (answer) {
-                                    // TODO: handle incorrect answers
-                                        is BuyAnswer -> {
-                                            val amount = answer.amount
-                                            player += amount
-                                            val cost = amount.resource.marketCost * amount.amount
-                                            log("Player $player buys $amount for $cost")
-                                            player -= Resource.GOLD(cost)
-                                            board.market -= amount
+                                    do {
+                                        val answer = player.handleRequest(TradeRequest(board.market))
+                                        var correctAnswer = true
+                                        when (answer) {
+                                            is BuyAnswer -> {
+                                                val amount = answer.amount
+                                                player += amount
+                                                val cost = amount.resource.marketCost * amount.amount
+                                                if (amount.resource == Resource.WOOD &&
+                                                    player.craftsmen.none { it.template is Schreiner }
+                                                ) {
+                                                    log("Player $player cannot buy wood: no Schreiner")
+                                                    correctAnswer = false
+                                                } else if (player.has(Resource.GOLD(cost))) {
+                                                    log("Player $player buys $amount for $cost")
+                                                    player -= Resource.GOLD(cost)
+                                                    board.market -= amount
+                                                } else {
+                                                    log("Player $player has not enough gold to buy $amount")
+                                                    correctAnswer = false
+                                                }
+                                            }
+                                            is SellAnswer -> {
+                                                val amount = answer.amount
+                                                val cost = amount.resource.marketCost * amount.amount
+                                                if (amount.resource == Resource.STONE &&
+                                                    player.craftsmen.none { it.template === Steinmetz }
+                                                ) {
+                                                    log("Player $player cannot sell stone: no Steinmetz")
+                                                    correctAnswer = false
+                                                } else {
+                                                    log("Player $player sells $amount for $cost")
+                                                    player += Resource.GOLD(cost)
+                                                    player -= amount
+                                                }
+                                            }
+                                            PassAnswer -> {
+                                                log("Player $player ends trade")
+                                                activePlayers -= player
+                                            }
                                         }
-                                        is SellAnswer -> {
-                                            val amount = answer.amount
-                                            val cost = amount.resource.marketCost * amount.amount
-                                            log("Player $player sells $amount for $cost")
-                                            player += Resource.GOLD(cost)
-                                            player -= amount
-                                        }
-                                        PassAnswer -> {
-                                            log("Player $player ends trade")
-                                            activePlayers -= player
-                                        }
-                                    }
+                                    } while (!correctAnswer)
                                 }
                                 break
                             }

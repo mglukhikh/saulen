@@ -2,6 +2,8 @@ package ru.spbstu.saulen.players
 
 import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.cards.Production
+import ru.spbstu.saulen.cards.Schreiner
+import ru.spbstu.saulen.cards.Steinmetz
 import ru.spbstu.saulen.game.Resource
 import java.util.*
 
@@ -68,18 +70,25 @@ internal class SimpleTestPlayer(
                 has(Resource.GOLD(8)) -> {
                     val market = request.market
                     when {
-                        market[Resource.STONE] > 0 -> BuyAnswer(Resource.STONE(1))
-                        market[Resource.WOOD] > 0 -> BuyAnswer(Resource.WOOD(1))
-                        market[Resource.SAND] > 0 -> BuyAnswer(Resource.SAND(1))
+                        market[Resource.STONE] > 0 ->
+                            BuyAnswer(Resource.STONE(1))
+                        market[Resource.WOOD] > 0 && craftsmen.any { it.template is Schreiner } ->
+                            BuyAnswer(Resource.WOOD(1))
+                        market[Resource.SAND] > 0 ->
+                            BuyAnswer(Resource.SAND(1))
                         else -> PassAnswer
                     }
                 }
                 !has(Resource.GOLD(2)) -> {
                     when {
-                        this[Resource.METAL] > 3 -> SellAnswer(Resource.METAL(1))
-                        this[Resource.SAND] > 0 -> SellAnswer(Resource.SAND(1))
-                        this[Resource.WOOD] > 0 -> SellAnswer(Resource.WOOD(1))
-                        this[Resource.STONE] > 0 -> SellAnswer(Resource.STONE(1))
+                        this[Resource.METAL] > 3 ->
+                            SellAnswer(Resource.METAL(1))
+                        this[Resource.SAND] > 0 ->
+                            SellAnswer(Resource.SAND(1))
+                        this[Resource.WOOD] > 0 ->
+                            SellAnswer(Resource.WOOD(1))
+                        this[Resource.STONE] > 0 && craftsmen.any { it.template === Steinmetz } ->
+                            SellAnswer(Resource.STONE(1))
                         else -> PassAnswer
                     }
                 }
