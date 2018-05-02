@@ -317,7 +317,22 @@ class Controller(vararg val players: Player) {
             // Produce winning points
             val craftsmenCapacities = mutableMapOf<Craftsman, Int>()
             for (craftsman in craftsmen) {
-                craftsmenCapacities[craftsman] = craftsman.capacity
+                val capacity = craftsman.capacity
+                craftsmenCapacities[craftsman] = capacity
+                // Auto-production
+                if (capacity == 0) {
+                    val requirement = craftsman.requirement
+                    val matched = when (requirement) {
+                        Resource.METAL::class.java -> player.has(Resource.METAL(1))
+                        CraftsmanTemplate::class.java -> player.craftsmen.any { requirement.isInstance(it) }
+                        null -> true
+                        else -> throw AssertionError("Unknown craftsman requirement: $requirement")
+                    }
+                    if (matched) {
+                        log("Player $player uses craftsman $craftsman automatically")
+                        player += craftsman.income
+                    }
+                }
             }
             do {
                 val useAnswer = player.handleRequest(
