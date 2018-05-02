@@ -3,12 +3,15 @@ package ru.spbstu.saulen.players
 import ru.spbstu.saulen.cards.Craftsman
 import ru.spbstu.saulen.cards.Production
 import ru.spbstu.saulen.game.Resource
+import java.util.*
 
 internal class SimpleTestPlayer(
         playerQueue: Int
 ) : Player(names[playerQueue], playerQueue) {
 
     internal var buyCraftsmen = true
+
+    internal var randomMasters = false
 
     override fun handleRequest(request: Request): Answer {
         return when (request) {
@@ -28,7 +31,11 @@ internal class SimpleTestPlayer(
             }
             is SetMasterRequest -> {
                 val positions = request.positions
-                positions.firstOrNull()?.let { SetMasterAnswer(it) } ?: PassAnswer
+                if (!randomMasters) {
+                    positions.firstOrNull()?.let { SetMasterAnswer(it) } ?: PassAnswer
+                } else {
+                    if (positions.isEmpty()) PassAnswer else SetMasterAnswer(positions[random.nextInt(positions.size)])
+                }
             }
             is DropBuildingResourceRequest -> {
                 for (resource in Resource.BUILDING_RESOURCES) {
@@ -57,11 +64,33 @@ internal class SimpleTestPlayer(
             }
             FreeResourceRequest -> BuyAnswer(Resource.STONE(1))
             is DropCraftsmanRequest -> DropCraftsmanAnswer(request.craftsmen.minBy { it.cost.amount }!!)
-            is TradeRequest -> TODO()
+            is TradeRequest -> when {
+                has(Resource.GOLD(8)) -> {
+                    val market = request.market
+                    when {
+                        market[Resource.STONE] > 0 -> BuyAnswer(Resource.STONE(1))
+                        market[Resource.WOOD] > 0 -> BuyAnswer(Resource.WOOD(1))
+                        market[Resource.SAND] > 0 -> BuyAnswer(Resource.SAND(1))
+                        else -> PassAnswer
+                    }
+                }
+                !has(Resource.GOLD(2)) -> {
+                    when {
+                        this[Resource.METAL] > 3 -> SellAnswer(Resource.METAL(1))
+                        this[Resource.SAND] > 0 -> SellAnswer(Resource.SAND(1))
+                        this[Resource.WOOD] > 0 -> SellAnswer(Resource.WOOD(1))
+                        this[Resource.STONE] > 0 -> SellAnswer(Resource.STONE(1))
+                        else -> PassAnswer
+                    }
+                }
+                else -> PassAnswer
+            }
         }
     }
 
     companion object {
         val names = listOf("Alex", "Bob", "Chris", "Dick")
+
+        val random = Random()
     }
 }
