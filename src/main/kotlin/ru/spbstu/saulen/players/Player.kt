@@ -38,7 +38,7 @@ abstract class Player private constructor(
 
     var hasTaxFree = false
 
-    var hasGrayWorkers = false
+    private var hasGrayWorkers = false
 
     var marketQueue = -1
 

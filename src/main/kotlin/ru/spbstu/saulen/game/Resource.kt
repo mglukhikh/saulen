@@ -3,19 +3,17 @@ package ru.spbstu.saulen.game
 import java.util.*
 
 enum class Resource(
-        val marketCost: Int,
-        val purchaseAllowed: Boolean = true,
-        val saleAllowed: Boolean = true
+        val marketCost: Int
 ) : Requirement {
     SAND(2),
     WOOD(3),
     STONE(4),
-    METAL(5, purchaseAllowed = false, saleAllowed = true),
-    GOLD(1, purchaseAllowed = false, saleAllowed = false),
-    WINNING_POINT(0, purchaseAllowed = false, saleAllowed = false),
-    WORKER(1, purchaseAllowed = false, saleAllowed = false),
-    MASTER(0, purchaseAllowed = false, saleAllowed = false),
-    CRAFTSMEN_LIMIT(0, purchaseAllowed = false, saleAllowed = false);
+    METAL(5),
+    GOLD(1),
+    WINNING_POINT(0),
+    WORKER(1),
+    MASTER(0),
+    CRAFTSMEN_LIMIT(0);
 
     operator fun invoke(amount: Int) = ResourceAmount(this, amount)
 
@@ -24,7 +22,7 @@ enum class Resource(
     }
 
     companion object {
-        val BUILDING_RESOURCES = EnumSet.of(SAND, WOOD, STONE, METAL)
+        val BUILDING_RESOURCES: EnumSet<Resource> = EnumSet.of(SAND, WOOD, STONE, METAL)
     }
 }
 

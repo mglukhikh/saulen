@@ -15,8 +15,6 @@ data class Production(
 
     operator fun invoke() = material(amount)
 
-    fun up() = Production(material, workers, amount + 1)
-
     override val cost: ResourceAmount
         get() = Resource.WORKER(workers)
 

@@ -46,7 +46,7 @@ class Stock : ResourceStorage {
 
     fun clear() {
         for (resource in Resource.values()) {
-            resources.put(resource, 0)
+            resources[resource] = 0
         }
     }
 

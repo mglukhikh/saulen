@@ -473,7 +473,7 @@ class Controller(vararg val players: Player) {
         log("=== Craftsmen work finished ===")
     }
 
-    internal fun finishRound(nextStartPlayer: Int = -1) {
+    private fun finishRound(nextStartPlayer: Int = -1) {
         for ((index, player) in players.withIndex()) {
             player.endOfRound(players.size)
             if (nextStartPlayer != -1) {

@@ -15,10 +15,6 @@ data class Craftsman(
 
     val requirement get() = template.requirement
 
-    fun up() = Craftsman(template, capacity + 1, cost)
-
-    fun down() = Craftsman(template, capacity - 1, cost)
-
     override fun toString(): String {
         return "(x$capacity) ($cost) $template"
     }

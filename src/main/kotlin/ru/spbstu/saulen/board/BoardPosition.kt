@@ -143,7 +143,7 @@ object GrayWorkersPosition : BoardPosition("Two gray workers") {
     }
 }
 
-class MarketPosition(val queue: Int) : BoardPosition("Market queue $queue") {
+class MarketPosition(private val queue: Int) : BoardPosition("Market queue $queue") {
     override fun invokeOn(player: Player, log: (String) -> Unit) {
         player.marketQueue = queue
     }
