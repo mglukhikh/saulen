@@ -4,6 +4,7 @@ import ru.spbstu.saulen.board.BoardPosition
 import ru.spbstu.saulen.cards.Advantage
 import ru.spbstu.saulen.cards.ContestCard
 import ru.spbstu.saulen.cards.Craftsman
+import ru.spbstu.saulen.cards.Event
 import ru.spbstu.saulen.game.Stock
 import kotlin.reflect.KClass
 
@@ -63,7 +64,22 @@ class StimulateCraftsmanRequest(craftsmen: List<Craftsman>) : ChooseCraftsmanReq
         craftsmen
 )
 
-class UseAdvantageRequest(val advantage: Advantage) : Request(
-        "Choose to use advantage $advantage or not",
+sealed class UseAdvantageRequest(message: String, val advantage: Advantage) : Request(
+        message,
         PassAnswer::class, UseAdvantageAnswer::class
+)
+
+class BasicUseAdvantageRequest(advantage: Advantage) : UseAdvantageRequest(
+        "Choose to use advantage $advantage or not",
+        advantage
+)
+
+class TaxFreeAdvantageRequest(advantage: Advantage, val taxLevel: Int) : UseAdvantageRequest(
+        "Choose to use advantage $advantage or not, tax level is $taxLevel",
+        advantage
+)
+
+class EventProtectionAdvantageRequest(advantage: Advantage, val event: Event) : UseAdvantageRequest(
+        "Choose to use advantage $advantage or not, ongoing negative event is $event",
+        advantage
 )

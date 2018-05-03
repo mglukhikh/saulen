@@ -99,14 +99,14 @@ object Ellen : Advantage(AdvantageKind.CONTINUOUS) {
 object Steuerfreiheit : Advantage(AdvantageKind.ONETIME) {
     // Du erhaelst in einer beliebigen Runde Steuerfreiheit (nach dem Wuerfelwurf)
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        // Implemented manually (controller)
     }
 }
 
 object Thomas : Advantage(AdvantageKind.ONETIME) {
     // Du erhaelst in einer beliebigen Runde Schutz vor dem Ereignis (nach dem Aufdecken)
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        // Implemented manually (controller)
     }
 }
 

@@ -105,9 +105,10 @@ class Controller(vararg val players: Player) {
         log("Card contest finished")
     }
 
-    private fun Player.useAdvantageQuestion(advantage: Advantage): Boolean {
+    private fun Player.useAdvantageQuestion(request: UseAdvantageRequest): Boolean {
+        val advantage = request.advantage
         if (advantage !in advantages) return false
-        val answer = handleRequest(UseAdvantageRequest(advantage))
+        val answer = handleRequest(BasicUseAdvantageRequest(advantage))
         if (answer is UseAdvantageAnswer && answer.advantage == advantage) {
             advantages -= advantage
             return true
@@ -136,7 +137,7 @@ class Controller(vararg val players: Player) {
                     accessiblePositions
             )
             var answer = if (currentPlayer[Resource.GOLD] < cost) {
-                if (currentPlayer.useAdvantageQuestion(Remigius)) {
+                if (currentPlayer.useAdvantageQuestion(BasicUseAdvantageRequest(Remigius))) {
                     log("Player $currentPlayer uses Remigius to set master for free")
                     currentPlayer += Resource.GOLD(cost)
                     var answer: Answer
@@ -208,9 +209,17 @@ class Controller(vararg val players: Player) {
             // Before invocation
             when (position) {
                 is TaxPosition -> {
+                    val taxLevel = position.amount
                     players.firstOrNull { Francis in it.advantages && !it.hasTaxFree }?.let {
                         log("Player $it pays minimum tax because of Francis")
-                        it += Resource.GOLD(position.amount - 2)
+                        it += Resource.GOLD(taxLevel - 2)
+                    }
+                    val taxFreeRequest = TaxFreeAdvantageRequest(Steuerfreiheit, taxLevel)
+                    players.forEach {
+                        if (it.useAdvantageQuestion(taxFreeRequest)) {
+                            log("Player $it uses Steuerfreiheit")
+                            it += Resource.GOLD(taxLevel)
+                        }
                     }
                 }
                 is WinningPointPosition -> {
@@ -226,7 +235,17 @@ class Controller(vararg val players: Player) {
                 ownerPlayer?.let { position.invokeOn(it, ::log) }
             } else {
                 for (player in players) {
-                    if (!withEvent && position is EventInvocationPosition) continue
+                    if (position is EventInvocationPosition) {
+                        if (!withEvent) continue
+                        val event = manualEvent ?: position.event!!
+                        val negative = event.negative
+                        if (negative && !player.hasEventProtection) {
+                            if (player.useAdvantageQuestion(EventProtectionAdvantageRequest(Thomas, event))) {
+                                log("Player $player uses Thomas to get negative event protection")
+                                continue
+                            }
+                        }
+                    }
                     position.invokeOn(player, ::log)
                 }
             }

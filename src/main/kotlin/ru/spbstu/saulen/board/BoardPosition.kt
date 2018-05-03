@@ -54,8 +54,8 @@ class EventInvocationPosition(
 ) : BoardPosition("", false) {
     override fun invokeOn(player: Player, log: (String) -> Unit) {
         val event = event ?: return
-        log("Event ${event.javaClass} activated!")
         if (!event.negative || !player.hasEventProtection) {
+            log("Event ${event.javaClass} activated!")
             event.invokeOn(player)
         }
     }
