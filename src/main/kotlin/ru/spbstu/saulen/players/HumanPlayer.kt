@@ -14,17 +14,32 @@ class HumanPlayer(
                 PassAnswer::class -> {
                     println("(P)ass")
                 }
+                CancelAnswer::class -> {
+                    println("c(A)ncel")
+                }
                 BuyAnswer::class -> {
                     println("(B)uy s(T)one (W)ood (S)and 1-4")
                 }
                 SellAnswer::class -> {
-                    println("(S)ell s(T)one (W)ood san(D) 1-9")
+                    println("(S)ell s(T)one (W)ood (S)and 1-9")
                 }
                 ContestCardAnswer::class -> {
                     println("(C)ontest card 1-9")
                 }
                 SetMasterAnswer::class -> {
                     println("(M)aster 11-99")
+                }
+                DropBuildingResourceAnswer::class -> {
+                    println("(D)rop s(T)one (W)ood (S)and 1-9")
+                }
+                UseCraftsmanAnswer::class -> {
+                    println("p(R)oduce by craftsman 1-9")
+                }
+                ChooseCraftsmanAnswer::class -> {
+                    println("cra(F)tsman 1-9")
+                }
+                UseAdvantageAnswer::class -> {
+                    println("(U)se")
                 }
             }
         }
@@ -37,7 +52,7 @@ class HumanPlayer(
                 correct = false
             } else {
                 answer = when (first) {
-                    'B', 'S' -> {
+                    'B', 'S', 'D' -> {
                         val second = line.getOrNull(1)
                         val last = line.getOrNull(2)
                         if (second == null || second !in "TWD" || last == null || !last.isDigit()) {
@@ -49,15 +64,15 @@ class HumanPlayer(
                                 else -> Resource.SAND
                             }
                             val amount = last - '0'
-                            if (first == 'B') {
-                                BuyAnswer(ResourceAmount(resource, amount))
-                            } else {
-                                SellAnswer(ResourceAmount(resource, amount))
+                            when (first) {
+                                'B' -> BuyAnswer(ResourceAmount(resource, amount))
+                                'D' -> DropBuildingResourceAnswer(ResourceAmount(resource, amount))
+                                else -> SellAnswer(ResourceAmount(resource, amount))
                             }
                         }
                     }
                     'C' -> {
-                        val possibleCards = (request as ContestCardRequest).cards
+                        val possibleCards = (request as? ContestCardRequest)?.cards ?: emptyList()
                         val index = line.substring(1).toIntOrNull()
                         if (index == null || index !in 1..possibleCards.size) {
                             null
@@ -66,7 +81,7 @@ class HumanPlayer(
                         }
                     }
                     'M' -> {
-                        val positions = (request as SetMasterRequest).positions
+                        val positions = (request as? SetMasterRequest)?.positions ?: emptyList()
                         val index = line.substring(1).toIntOrNull()
                         if (index == null || index !in 1..positions.size) {
                             null
@@ -75,6 +90,28 @@ class HumanPlayer(
                         }
 
                     }
+                    'F' -> {
+                        val craftsmen = (request as? ChooseCraftsmanRequest)?.craftsmen ?: emptyList()
+                        val index = line.substring(1).toIntOrNull()
+                        if (index == null || index !in 1..craftsmen.size) {
+                            null
+                        } else {
+                            ChooseCraftsmanAnswer(craftsmen[index - 1])
+                        }
+                    }
+                    'R' -> {
+                        val craftsmen =
+                                (request as? UseCraftsmanRequest)?.craftsmenCapacities?.keys?.toList() ?: emptyList()
+                        val index = line.substring(1).toIntOrNull()
+                        if (index == null || index !in 1..craftsmen.size) {
+                            null
+                        } else {
+                            UseCraftsmanAnswer(craftsmen[index - 1], 1)
+                        }
+
+                    }
+                    'A' -> CancelAnswer
+                    'U' -> (request as? UseAdvantageRequest)?.advantage?.let { UseAdvantageAnswer(it) }
                     else -> PassAnswer
                 }
                 if (answer == null) {
