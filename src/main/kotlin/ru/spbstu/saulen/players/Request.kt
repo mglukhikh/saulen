@@ -83,3 +83,8 @@ class EventProtectionAdvantageRequest(advantage: Advantage, val event: Event) : 
         "Choose to use advantage $advantage or not, ongoing negative event is $event",
         advantage
 )
+
+class EventAcknowledgeRequest(val event: Event) : Request(
+        "Look at the upcoming event: $event (${if (event.negative) "negative" else "positive"})",
+        PassAnswer::class
+)

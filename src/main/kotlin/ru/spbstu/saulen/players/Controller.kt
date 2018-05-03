@@ -41,6 +41,10 @@ class Controller(vararg val players: Player) {
         prepareForRound()
         for (player in players) {
             log("Player $player resources: ${player.resourceDescription(resourcesToLog)}")
+            if (Ellen in player.advantages) {
+                val event = board.positions.keys.filterIsInstance<EventInvocationPosition>().first().event!!
+                player.handleRequest(EventAcknowledgeRequest(event))
+            }
         }
         runCardContest()
         runMasterSetup()

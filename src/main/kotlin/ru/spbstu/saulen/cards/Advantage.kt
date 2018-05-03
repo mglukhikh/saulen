@@ -92,7 +92,7 @@ object PriorPhilip : Advantage(AdvantageKind.CONTINUOUS) {
 object Ellen : Advantage(AdvantageKind.CONTINUOUS) {
     // Du darfst dir zu Beginn jeder Runde die kommende Ereigniskarte ansehen
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        // Implemented manually (controller)
     }
 }
 

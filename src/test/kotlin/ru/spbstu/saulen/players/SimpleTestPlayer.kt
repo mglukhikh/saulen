@@ -96,6 +96,7 @@ internal class SimpleTestPlayer(
                 }
                 else -> PassAnswer
             }
+            is EventAcknowledgeRequest -> PassAnswer
         }
     }
 
