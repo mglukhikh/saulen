@@ -97,6 +97,7 @@ internal class SimpleTestPlayer(
                 else -> PassAnswer
             }
             is EventAcknowledgeRequest -> PassAnswer
+            is CancelMasterRequest -> if (!request.own) CancelAnswer else PassAnswer
         }
     }
 

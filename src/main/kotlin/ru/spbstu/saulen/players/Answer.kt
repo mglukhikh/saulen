@@ -10,6 +10,8 @@ sealed class Answer
 
 object PassAnswer : Answer()
 
+object CancelAnswer : Answer()
+
 data class BuyAnswer(val amount: ResourceAmount) : Answer()
 
 data class SellAnswer(val amount : ResourceAmount) : Answer()

@@ -88,3 +88,8 @@ class EventAcknowledgeRequest(val event: Event) : Request(
         "Look at the upcoming event: $event (${if (event.negative) "negative" else "positive"})",
         PassAnswer::class
 )
+
+class CancelMasterRequest(val own: Boolean, val cost: Int) : Request(
+        "Choose to cancel upcoming ${if (own) "own" else "alien"} master with cost $cost",
+        CancelAnswer::class, PassAnswer::class
+)

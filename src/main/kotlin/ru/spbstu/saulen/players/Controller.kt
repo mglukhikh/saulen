@@ -190,11 +190,22 @@ class Controller(vararg val players: Player) {
             } while (incorrect)
         }
 
+        var cancelled = false
         while (masters.isNotEmpty()) {
             val currentPlayer = masters.removeAt(masters.lastIndex)
-            // TODO: allow starting player to put current master back once
-
             val cost = currentCost--
+            if (!cancelled) {
+                val own = currentPlayer == startingPlayer
+                val cancelAnswer = startingPlayer.handleRequest(CancelMasterRequest(own, cost))
+                if (cancelAnswer === CancelAnswer) {
+                    log("Starting player $startingPlayer uses his right to cancel master of $currentPlayer")
+                    cancelled = true
+                    currentCost++
+                    val newIndex = random.nextInt(masters.size + 1)
+                    masters.add(newIndex, currentPlayer)
+                    continue
+                }
+            }
             log("Player $currentPlayer can buy his master for $cost")
             setMaster(currentPlayer, cost)
         }
