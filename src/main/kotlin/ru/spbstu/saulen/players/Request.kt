@@ -48,9 +48,19 @@ class UseCraftsmanRequest(val craftsmenCapacities: Map<Craftsman, Int>) : Reques
         }, PassAnswer::class, UseCraftsmanAnswer::class
 )
 
-class DropCraftsmanRequest(val craftsmen: List<Craftsman>, limit: Int) : Request(
+sealed class ChooseCraftsmanRequest(message: String, val craftsmen: List<Craftsman>) : Request(
+        message,
+        ChooseCraftsmanAnswer::class
+)
+
+class DropCraftsmanRequest(craftsmen: List<Craftsman>, limit: Int) : ChooseCraftsmanRequest(
         "Craftsmen limit exceeded (${craftsmen.size}/$limit), drop crafsman" + craftsmen.joinToString(),
-        DropCraftsmanAnswer::class
+        craftsmen
+)
+
+class StimulateCraftsmanRequest(craftsmen: List<Craftsman>) : ChooseCraftsmanRequest(
+        "Choose craftsman to increase capacity by 1" + craftsmen.joinToString(),
+        craftsmen
 )
 
 class UseAdvantageRequest(val advantage: Advantage) : Request(

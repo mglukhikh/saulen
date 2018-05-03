@@ -22,6 +22,6 @@ data class DropBuildingResourceAnswer(val amount: ResourceAmount) : Answer()
 
 data class UseCraftsmanAnswer(val craftsman: Craftsman, val multiplier: Int) : Answer()
 
-data class DropCraftsmanAnswer(val craftsman: Craftsman) : Answer()
+data class ChooseCraftsmanAnswer(val craftsman: Craftsman) : Answer()
 
 data class UseAdvantageAnswer(val advantage: Advantage) : Answer()

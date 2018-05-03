@@ -65,7 +65,8 @@ internal class SimpleTestPlayer(
                 PassAnswer
             }
             FreeResourceRequest -> BuyAnswer(Resource.STONE(1))
-            is DropCraftsmanRequest -> DropCraftsmanAnswer(request.craftsmen.minBy { it.cost.amount }!!)
+            is DropCraftsmanRequest -> ChooseCraftsmanAnswer(request.craftsmen.minBy { it.cost.amount }!!)
+            is StimulateCraftsmanRequest -> ChooseCraftsmanAnswer(request.craftsmen.maxBy { it.income.amount }!!)
             is UseAdvantageRequest -> UseAdvantageAnswer(request.advantage)
             is TradeRequest -> when {
                 has(Resource.GOLD(8)) -> {

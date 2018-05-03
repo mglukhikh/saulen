@@ -2,7 +2,7 @@ package ru.spbstu.saulen.cards
 
 import ru.spbstu.saulen.game.Resource
 import ru.spbstu.saulen.game.ResourceAmount
-import ru.spbstu.saulen.players.DropCraftsmanAnswer
+import ru.spbstu.saulen.players.ChooseCraftsmanAnswer
 import ru.spbstu.saulen.players.DropCraftsmanRequest
 import ru.spbstu.saulen.players.Player
 
@@ -75,7 +75,7 @@ object Teile : Event(negative = true) {
                     DropCraftsmanRequest(craftsmen, craftsmen.size - 1)
             )
             var correct = true
-            if (dropAnswer is DropCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
+            if (dropAnswer is ChooseCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
                 //log("Player $player dropped ${dropAnswer.craftsman}")
                 player.craftsmen -= dropAnswer.craftsman
             } else {
@@ -89,6 +89,6 @@ object Erzbischof : Event(negative = false) {
     // Fuer jeden Spieler erhoeht sich die Kapazitaet eines eigenes Handwerkers um 1
     // (gilt nicht fuer Orgelbauer und Glockengiesser)
     override fun invokeOn(player: Player) {
-        // TODO (probably not here)
+        // Implemented in controller
     }
 }

@@ -13,6 +13,8 @@ class Controller(vararg val players: Player) {
 
     internal var silent = true
 
+    private var currentEvent: Event? = null
+
     private val random = Random()
 
     private fun log(s: String) {
@@ -233,6 +235,7 @@ class Controller(vararg val players: Player) {
             when (position) {
                 is EventInvocationPosition -> if (withEvent) {
                     val event = manualEvent ?: position.event!!
+                    currentEvent = event
                     if (event == StadtMauer) {
                         returnMastersBack = false
                     }
@@ -357,9 +360,24 @@ class Controller(vararg val players: Player) {
                 val dropAnswer = player.handleRequest(
                         DropCraftsmanRequest(craftsmen, craftsmenLimit)
                 )
-                if (dropAnswer is DropCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
+                if (dropAnswer is ChooseCraftsmanAnswer && dropAnswer.craftsman in craftsmen) {
                     log("Player $player dropped ${dropAnswer.craftsman}")
                     player.craftsmen -= dropAnswer.craftsman
+                }
+            }
+            // Increase capacity on Erzbischof
+            var stimulated: Craftsman? = null
+            if (currentEvent === Erzbischof) {
+                val craftsmenToStimulate = craftsmen.filter {
+                    it.capacity > 0 && it.template != Orgelbauer && it.template != Glockengiesser
+                }
+                log("Player $player chooses craftsman to increase capacity")
+                val chooseAnswer = player.handleRequest(
+                        StimulateCraftsmanRequest(craftsmenToStimulate)
+                )
+                if (chooseAnswer is ChooseCraftsmanAnswer && chooseAnswer.craftsman in craftsmenToStimulate) {
+                    log("Player $player increased ${chooseAnswer.craftsman} capacity by 1")
+                    stimulated = chooseAnswer.craftsman
                 }
             }
             // Produce winning points
@@ -371,7 +389,7 @@ class Controller(vararg val players: Player) {
                     continue
                 }
                 val capacity = craftsman.capacity
-                craftsmenCapacities[craftsman] = capacity
+                craftsmenCapacities[craftsman] = if (craftsman == stimulated) capacity + 1 else capacity
                 if (capacity == 0) {
                     log("Player $player uses craftsman $craftsman automatically")
                     player += craftsman.income
