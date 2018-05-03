@@ -14,7 +14,11 @@ class Stock : ResourceStorage {
             minusAssign(-amount)
             return
         }
-        resources[amount.resource] = this[amount.resource] + amount.amount
+        val total = this[amount.resource] + amount.amount
+        resources[amount.resource] = total
+        if (amount.resource == Resource.GOLD && total > GOLD_LIMIT) {
+            resources[amount.resource] = GOLD_LIMIT
+        }
     }
 
     override operator fun minusAssign(amount: ResourceAmount) {
@@ -44,5 +48,9 @@ class Stock : ResourceStorage {
         for (resource in Resource.values()) {
             resources.put(resource, 0)
         }
+    }
+
+    companion object {
+        const val GOLD_LIMIT = 30
     }
 }
