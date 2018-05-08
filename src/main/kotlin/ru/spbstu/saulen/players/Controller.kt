@@ -112,7 +112,7 @@ class Controller(vararg val players: Player) {
     private fun Player.useAdvantageQuestion(request: UseAdvantageRequest): Boolean {
         val advantage = request.advantage
         if (advantage !in advantages) return false
-        val answer = handleRequest(BasicUseAdvantageRequest(advantage))
+        val answer = handleRequest(request)
         if (answer is UseAdvantageAnswer && answer.advantage == advantage) {
             advantages -= advantage
             return true
@@ -134,14 +134,13 @@ class Controller(vararg val players: Player) {
         var currentCost = START_MASTER_COST
 
         fun setMaster(currentPlayer: Player, cost: Int) {
-            val accessiblePositions =
-                    board.positions.filter { it.key.masterPosition }.filterValues { it == null }.keys.toList()
+            val accessiblePositions = board.accessiblePositions
             val request = SetMasterRequest(
                     cost,
                     accessiblePositions
             )
             var answer = if (currentPlayer[Resource.GOLD] < cost) {
-                if (currentPlayer.useAdvantageQuestion(BasicUseAdvantageRequest(Remigius))) {
+                if (currentPlayer.useAdvantageQuestion(SetFreeMasterAdvantageRequest(Remigius, cost))) {
                     log("Player $currentPlayer uses Remigius to set master for free")
                     currentPlayer += Resource.GOLD(cost)
                     var answer: Answer
@@ -196,7 +195,9 @@ class Controller(vararg val players: Player) {
             val cost = currentCost--
             if (!cancelled) {
                 val own = currentPlayer == startingPlayer
-                val cancelAnswer = startingPlayer.handleRequest(CancelMasterRequest(own, cost))
+                val cancelAnswer = startingPlayer.handleRequest(
+                        CancelMasterRequest(own, cost, board.accessiblePositions)
+                )
                 if (cancelAnswer === CancelAnswer) {
                     log("Starting player $startingPlayer uses his right to cancel master of $currentPlayer")
                     cancelled = true
@@ -368,16 +369,6 @@ class Controller(vararg val players: Player) {
         }
         log("=== Position handling finished ===")
         return nextStartPlayer
-    }
-
-    private fun Player.requirementMatched(craftsman: Craftsman): Boolean {
-        val requirement = craftsman.requirement
-        return when (requirement) {
-            Resource.METAL::class.java -> has(Resource.METAL(1))
-            Mortelmischer::class.java -> craftsmen.any { requirement.isInstance(it) }
-            null -> true
-            else -> throw AssertionError("Unknown craftsman requirement: $requirement")
-        }
     }
 
     internal fun runCraftsmenWork() {

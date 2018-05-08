@@ -69,7 +69,7 @@ sealed class UseAdvantageRequest(message: String, val advantage: Advantage) : Re
         PassAnswer::class, UseAdvantageAnswer::class
 )
 
-class BasicUseAdvantageRequest(advantage: Advantage) : UseAdvantageRequest(
+class SetFreeMasterAdvantageRequest(advantage: Advantage, val cost: Int) : UseAdvantageRequest(
         "Choose to use advantage $advantage or not",
         advantage
 )
@@ -89,7 +89,7 @@ class EventAcknowledgeRequest(val event: Event) : Request(
         PassAnswer::class
 )
 
-class CancelMasterRequest(val own: Boolean, val cost: Int) : Request(
+class CancelMasterRequest(val own: Boolean, val cost: Int, val positions: List<BoardPosition>) : Request(
         "Choose to cancel upcoming ${if (own) "own" else "alien"} master with cost $cost",
         CancelAnswer::class, PassAnswer::class
 )

@@ -56,6 +56,16 @@ abstract class Player private constructor(
 
     fun has(amount: ResourceAmount) = this[amount.resource] >= amount.amount
 
+    fun requirementMatched(craftsman: Craftsman): Boolean {
+        val requirement = craftsman.requirement
+        return when (requirement) {
+            Resource.METAL::class.java -> has(Resource.METAL(1))
+            Mortelmischer::class.java -> craftsmen.any { requirement.isInstance(it.template) }
+            null -> true
+            else -> throw AssertionError("Unknown craftsman requirement: $requirement")
+        }
+    }
+
     operator fun plusAssign(production: Production) {
         this -= WORKER(production.workers)
         this.production += production
@@ -68,6 +78,8 @@ abstract class Player private constructor(
         }
         production.clear()
     }
+
+    protected var numberOfRound = 1
 
     fun endOfRound(numberOfPlayers: Int) {
         hasEventProtection = false
@@ -85,6 +97,7 @@ abstract class Player private constructor(
             numberOfPlayers - 1 -> 0
             else -> playerQueue + 1
         }
+        numberOfRound++
     }
 
     override fun toString(): String = name

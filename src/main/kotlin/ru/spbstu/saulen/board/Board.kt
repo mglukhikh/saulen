@@ -20,6 +20,9 @@ class Board {
         }
     }
 
+    val accessiblePositions: List<BoardPosition>
+        get() = positions.filter { it.key.masterPosition }.filterValues { it == null }.keys.toList()
+
     val contestCards = mutableListOf<ContestCard>()
 
     val market = Stock()
