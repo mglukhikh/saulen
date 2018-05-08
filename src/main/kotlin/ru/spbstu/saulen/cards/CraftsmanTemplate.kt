@@ -56,7 +56,7 @@ object Statiker : CraftsmanTemplate(victoryPoints = 1)
 
 object Zimmermann : CraftsmanTemplate(victoryPoints = 1, expense = WOOD(1))
 
-object Bildhauer : CraftsmanTemplate(victoryPoints = 1, expense = STONE(2))
+object Bildhauer : CraftsmanTemplate(victoryPoints = 2, expense = STONE(1))
 
 object Glasblaser : CraftsmanTemplate(
         income = WINNING_POINT(3),
@@ -65,7 +65,7 @@ object Glasblaser : CraftsmanTemplate(
 
 object Goldschmied : CraftsmanTemplate(victoryPoints = 1, expense = GOLD(3))
 
-object Glockengiesser : CraftsmanTemplate(victoryPoints = 4, expense = METAL(2))
+object Glockengiesser : CraftsmanTemplate(victoryPoints = 4, expense = METAL(1))
 
 object Orgelbauer : CraftsmanTemplate(
         income = WINNING_POINT(6),
