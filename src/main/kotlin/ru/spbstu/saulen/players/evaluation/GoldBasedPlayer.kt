@@ -128,7 +128,7 @@ class GoldBasedPlayer(
 
     override fun ContestCard.evaluate(numberOfRound: Int): Int {
         return when {
-            this is Craftsman -> this.evaluate(numberOfRound)
+            this is Craftsman -> this.evaluate(numberOfRound) - this.cost.evaluate(numberOfRound)
             this is Production -> this.evaluate(numberOfRound)
             else -> throw AssertionError("Strange contest card: $this")
         }
