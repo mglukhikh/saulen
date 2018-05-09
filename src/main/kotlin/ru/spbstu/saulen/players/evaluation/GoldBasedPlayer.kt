@@ -190,7 +190,8 @@ class GoldBasedPlayer(
         }
     }
 
-    override fun Craftsman.evaluate(numberOfRound: Int): Int {
+    private fun Craftsman.pureEvaluate(numberOfRound: Int): Int {
+        if (!requirementMatched(this)) return 0
         return if (cost.amount > 0) {
             cost.amount * 2
         } else {
@@ -201,6 +202,15 @@ class GoldBasedPlayer(
                 else -> throw AssertionError("Unknown craftsman without cost: $this")
             }
         }
+    }
+
+    override fun Craftsman.evaluate(numberOfRound: Int): Int {
+        val income = pureEvaluate(numberOfRound)
+        if (craftsmen.size >= this@GoldBasedPlayer[Resource.CRAFTSMEN_LIMIT]) {
+            val loss = craftsmen.map { it.pureEvaluate(numberOfRound) }.min() ?: 0
+            return income - loss
+        }
+        return income
     }
 
     companion object {
