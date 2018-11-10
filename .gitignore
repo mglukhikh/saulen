@@ -1,2 +1,4 @@
 *.iml
-.idea/*
+.idea/*.xml
+.idea/modules/*
+.idea/libraries/*
